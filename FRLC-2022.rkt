@@ -1,14 +1,13 @@
 (require (lib "trace.ss"))
 
 (require (lib "compat.ss"))
-;gfgdg;
 (require (lib "list.ss"))
 (define *frames* '())
 (define *frame '())
 (define *slot '())
 (define *facet '())
 (define *value '())
-
+;test;
 (define (fget frame slot facet)
   (map car 
        (mycdr (myassoc  facet 
