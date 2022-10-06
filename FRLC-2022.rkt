@@ -7,7 +7,6 @@
 (define *slot '())
 (define *facet '())
 (define *value '())
-;test;
 (define (fget frame slot facet)
   (map car 
        (mycdr (myassoc  facet 
