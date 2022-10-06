@@ -1,7 +1,7 @@
 (require (lib "trace.ss"))
 
 (require (lib "compat.ss"))
-;gfgdg;
+
 (require (lib "list.ss"))
 (define *frames* '())
 (define *frame '())
