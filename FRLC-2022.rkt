@@ -217,3 +217,18 @@
   (define res (string->symbol (string-append char "_" num)))
   (putprop frame 'number (+ 1 (getprop frame 'number)))res)
 
+(fput 'homme 'vie 'defaut 'vivant)
+(fput 'homme 'ako 'valeur 'objet)
+(fput 'homme 'travail 'ifneeded 'ask)
+(fput 'homme 'marié 'defaut 'non)
+(fput 'homme 'mere 'defaut 'inconnue)
+(fput 'femme 'ako 'valeur 'objet)
+(fput 'femme 'vie 'defaut 'vivant)
+(fput 'femme 'travail 'defaut 'aucun)
+(fput 'femme 'marié 'defaut 'non)
+(fput 'femme 'enfant 'defaut 0)
+(fput 'femme 'mere 'defaut 'inconnue)
+(fput 'canari 'couleur 'valeur 'jaune)
+(fput 'pioupiou 'ako 'valeur 'canari)
+(fput 'canari 'ako 'valeur 'oiseau)
+
