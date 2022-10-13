@@ -217,6 +217,12 @@
   (define res (string->symbol (string-append char "_" num)))
   (putprop frame 'number (+ 1 (getprop frame 'number)))res)
 
+(define (fchildren frame slot)
+  (define liste (cadr (fgetclasses frame)))liste)
+
+(define (Frame frame)
+  (cond((member frame *frames*) (fgetframe frame)) (#t '())))
+
 (fput 'homme 'vie 'defaut 'vivant)
 (fput 'homme 'ako 'valeur 'objet)
 (fput 'homme 'travail 'ifneeded 'ask)
