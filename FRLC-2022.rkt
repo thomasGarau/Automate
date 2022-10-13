@@ -1,13 +1,14 @@
 (require (lib "trace.ss"))
 
 (require (lib "compat.ss"))
-;gfgdg;
+
 (require (lib "list.ss"))
 (define *frames* '())
 (define *frame '())
 (define *slot '())
 (define *facet '())
 (define *value '())
+(define b '())
 
 (define (fget frame slot facet)
   (map car 
@@ -127,6 +128,31 @@
                      (#t '()))))
 
 
+(define (myfget frame slot facet)
+  (map car 
+       (mycdr (myassoc  facet 
+                        (mycdr (myassoc slot 
+                                        (mycdr b)))))))
+
+(define (myffacet frame slot)
+(map car (mycdr (myassoc slot (mycdr b)))))
+
+(define (myval frame slot facet)
+(map car (mycdr (myassoc facet (mycdr (myassoc slot (mycdr b)))))))
+
+(define (fremove frame slot facet valeur)
+    (define taille_slot (fslot frame))
+    (define r #f)
+    (set! b (fgetframe frame))
+    (putprop frame 'frame (list frame))
+    (map(lambda(e)
+      (map (lambda(fac)
+        (map(lambda(val)
+            (cond((not(equal? valeur val))
+              (fput frame e fac val)) 
+              (#t (set! r 'T))))
+              (myval frame e fac)))(myffacet frame e)))taille_slot)r)
+
 
 
 
@@ -155,6 +181,8 @@
 
 (define (ffacet frame slot)
 (map car (mycdr (myassoc slot (mycdr (mygetprop frame 'frame))))))
+
+
 
 (fput 'homme 'vie 'defaut 'vivant)
 (fput 'homme 'ako 'valeur 'objet)
