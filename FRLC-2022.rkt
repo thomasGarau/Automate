@@ -90,7 +90,11 @@
         (#t  (fassoc-value frame slot facet valeur valeur
                            (fassoc-facet frame slot  facet facet
                                          (fassoc-slot frame slot
-                                                      (fgetframe frame)))) valeur)  ))  
+                                                      (fgetframe frame)))) valeur)  ))
+
+(define (fput+ frame slot facet valeur)
+  (cond ((fput frame slot facet valeur) #f)
+        (#t )))                                                        
 
 (define (mycar l)(cond ((null? l) '())
                        (#t (car l))))
