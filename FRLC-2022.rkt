@@ -208,4 +208,12 @@
              ((not(equal? '() (fget  (car liste) slot 'ifneeded))) (fget  (car liste) slot 'ifneeded))))
   (#t(fget-Z (car (cdr liste)) slot))))
 
-(define (fgename frame))
+(define (fgename frame)
+  (cond((getprop frame 'number))
+       (#t(putprop frame 'number 1))
+  )
+  (define char (symbol->string frame))
+  (define num (number->string (getprop frame 'number)))
+  (define res (string->symbol (string-append char "_" num)))
+  (putprop frame 'number (+ 1 (getprop frame 'number)))res)
+
