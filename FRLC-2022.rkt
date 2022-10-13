@@ -40,9 +40,12 @@
                )))
 
 (define (fassoc-value  frame slot facet  value cle aliste)
-  
+  ;test si la liste est null;
+  ;cdr retourne les élement de la liste ((qui est en faite une facet)) - le première element
   (cond ((null? aliste) '())
+        ;assoc retourne le première element de la liste correspondant à la clé 
         ((assoc  cle (cdr aliste)))
+        ;si la liste (facet) est vide alors jaoute  
         (#t (putprop frame 'frame (ajoute-value  value facet  slot 
                                                  cle aliste (getprop frame 'frame)))
             ))) 
@@ -70,7 +73,13 @@
 
 (define (ajoute-value value facet  slot cle aliste  l)
   ;(cons (car l)(cons (cons slot (cons (cons facet (cons (list value) (cdr aliste))) (myassoc facet (cdr aliste)))) (remove (myassoc slot (cdr l)) (cdr l))))) 
-  (cons (car l)(cons (append (list slot) (cons (cons facet (cons (list value) (cdr aliste))) (myassoc facet (cdr aliste))) (liste-facets (car l)  facet slot l)  ) (remove (myassoc slot (cdr l)) (cdr l)))))  
+  (cons
+  (car l) (cons(append(list slot)
+                      (cons (cons facet 
+                                  (cons (list value) (cdr aliste)))
+                            (myassoc facet (cdr aliste)))
+                      (liste-facets (car l)  facet slot l)  )
+                (remove (myassoc slot (cdr l)) (cdr l)))))  
 
 (define (liste-facets frame facet slot l)
   
@@ -87,8 +96,17 @@
   (cond ((equal? #f (assoc cle aliste)) '())
         ((assoc cle  aliste))))
 
+;setter de slot;
+;frame slot facet valeur = param;
 (define (fput frame slot facet valeur)
+;vérifie d'abord que la valeur n'est pas égale à celle déja présente; 
+;#f = false en gros;
+;fget retourne car (donc le première élement en gros)
+;mycar retourne valeur de la facette du slot de la frame passer en param
+;#f marche comme un returne;
+
   (cond ((equal? valeur (mycar (fget frame slot facet))) #f)
+        ;#t => si non returne true + ... ;
         (#t  (fassoc-value frame slot facet valeur valeur
                            (fassoc-facet frame slot  facet facet
                                          (fassoc-slot frame slot
