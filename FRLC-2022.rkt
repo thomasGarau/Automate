@@ -136,8 +136,6 @@
               (myval frame e fac)))(myffacet frame e)))taille_slot)r)
 
 
-
-
 (define (fcreate frame name)
   (fput name 'ako 'valeur frame)
   (fput name 'classification 'valeur 'instance))
@@ -165,15 +163,31 @@
 (map car (mycdr (myassoc slot (mycdr (mygetprop frame 'frame))))))
 
 
+(define (fget-I frame slot)
+  (define liste (fgetclasses frame))
+  (cond((equal? 1 (length liste)) (fget  (car liste) slot 'valeur))
+       ((not(equal? '() (fget  (car liste) slot 'valeur)))(fget  (car liste) slot 'valeur))
+  (#t(fget-I (car (cdr liste)) slot))))
+    
+(define (fget-Ibis frame slot cle)
+  (define liste (fgetclasses frame))
+  (cond((equal? 1 (length liste)) (fget  (car liste) slot cle))
+       ((not(equal? '() (fget  (car liste) slot cle)))(fget  (car liste) slot cle))
+  (#t(fget-Ibis (car (cdr liste)) slot cle))))
 
-(fput 'homme 'vie 'defaut 'vivant)
-(fput 'homme 'ako 'valeur 'objet)
-(fput 'homme 'travail 'ifneeded 'ask)
-(fput 'homme 'marié 'defaut 'non)
-(fput 'homme 'mere 'defaut 'inconnue)
-(fput 'femme 'ako 'valeur 'objet)
-(fput 'femme 'vie 'defaut 'vivant)
-(fput 'femme 'travail 'defaut 'aucun)
-(fput 'femme 'marié 'defaut 'non)
-(fput 'femme 'enfant 'defaut 0)
-(fput 'femme 'mere 'defaut 'inconnue)
+(define (fget-N frame slot)
+  (cond((not(equal? '() (fget-Ibis frame slot 'valeur))) (fget-Ibis frame slot 'valeur))
+       ((not(equal? '() (fget-Ibis frame slot 'defaut))) (fget-Ibis frame slot 'defaut))
+       ((not(equal? '() (fget-Ibis frame slot 'ifneeded))) (fget-Ibis frame slot 'ifneeded))))
+
+(define (fget-Z frame slot)
+  (define liste (fgetclasses frame))
+  (cond((equal? 1 (length liste)) (cond((not(equal? '() (fget  (car liste) slot 'valeur))) (fget  (car liste) slot 'valeur))
+                                       ((not(equal? '() (fget  (car liste) slot 'defaut))) (fget  (car liste) slot 'defaut))
+                                       ((not(equal? '() (fget  (car liste) slot 'ifneeded))) (fget  (car liste) slot 'ifneeded))))
+       ((cond((not(equal? '() (fget  (car liste) slot 'valeur))) (fget  (car liste) slot 'valeur))
+             ((not(equal? '() (fget  (car liste) slot 'defaut))) (fget  (car liste) slot 'defaut))
+             ((not(equal? '() (fget  (car liste) slot 'ifneeded))) (fget  (car liste) slot 'ifneeded))))
+  (#t(fget-Z (car (cdr liste)) slot))))
+
+(define (fgename frame))
