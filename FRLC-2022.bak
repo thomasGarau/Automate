@@ -159,7 +159,7 @@
 
 
 (define (fcreate frame name)
-  ;il faudrait ajouté une verification que le frame existe pas déja avant de le créer ((liste des frames *frame*)); pour ca utilisé la fonctio nmember on peut aussi utilisé print (ca fait partie de scheme)
+  ;il faudrait ajouté une verification que le frame existe pas déja avant de le créer ((liste des frames *frame*)); pour ca utilisé la fonction member ? on peut aussi utilisé print (ca fait partie de scheme)
   (fput name 'ako 'valeur frame)
   (fput name 'classification 'valeur 'instance))
 
