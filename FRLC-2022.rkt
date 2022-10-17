@@ -119,8 +119,11 @@
                                                       (fgetframe frame)))) valeur)  ))  
 
 (define (fput+ frame slot facet valeur)
-  ((fput frame slot facet valeur))
-  (cond ((equal? facet 'if-added) (apply(eval(mycar(fget frame slot 'if-added))) '()))))
+  (fput frame slot facet (apply(eval(mycar(fget (mycar(cdr(fgetclasses frame))) slot 'if-added))) (list valeur))))
+
+(define (calcul-taille valeur)
+  ( + valeur '1))
+
 
 (define (fremove+ frame slot facet valeur)
   (fremove frame slot facet valeur)
@@ -246,7 +249,7 @@
 
 (fput 'homme 'vie 'defaut 'vivant)
 (fput 'homme 'ako 'valeur 'objet)
-(fput+ 'homme 'age 'if-added 'calcul-taille)
+(fput 'homme 'age 'if-added 'calcul-taille)
 (fput 'homme 'travail 'ifneeded 'ask)
 (fput 'homme 'marié 'defaut 'non)
 (fput 'homme 'mere 'defaut 'inconnue)
@@ -259,4 +262,7 @@
 (fput 'canari 'couleur 'valeur 'jaune)
 (fput 'pioupiou 'ako 'valeur 'canari)
 (fput 'canari 'ako 'valeur 'oiseau)
+(fput 'henry 'ako 'valeur 'homme)
+(fput+ 'henry 'age 'age '21)
+
 
