@@ -1,3 +1,4 @@
+(require racket/gui/base)
 (require (lib "trace.ss"))
 
 (require (lib "compat.ss"))
@@ -246,6 +247,90 @@
 
 (define (Frame frame)
   (cond((member frame *frames*) (fgetframe frame)) (#t '())))
+
+(define (fmenu)
+  (define fenetre(new frame%
+    [label "Menu"]
+    [width 500]
+    [height 700]
+    [style '(fullscreen-button)]
+    [alignment '(right top)]
+    ))
+
+  (define panel(new horizontal-pane%
+    [parent fenetre]
+    [vert-margin 10]
+    [horiz-margin 10]
+    [alignment '(left center)]
+    [stretchable-width #t]
+    [stretchable-height #t]))
+
+  (define listeFrame(new editor-canvas%
+    [parent panel]
+    [label "liste frame"]
+    [min-width 125]
+    [min-height 600]
+    [vert-margin 10]
+    [horiz-margin 10]
+    [style '(no-hscroll auto-vscroll)]
+    [stretchable-width #t]
+    [stretchable-height #t]))
+
+  (define cont(new horizontal-pane%
+    [parent fenetre]
+    [vert-margin 10]
+    [horiz-margin 10]
+    [alignment '(right center)]
+    [stretchable-width #t]
+    [stretchable-height #t]))
+
+  (define b1(new vertical-pane%
+    [parent cont]
+    [vert-margin 10]
+    [horiz-margin 10]
+    [alignment '(right top)]
+    [stretchable-width #t]
+    [stretchable-height #t])) 
+
+  (define b2(new vertical-pane%
+    [parent cont]
+    [vert-margin 10]
+    [horiz-margin 10]
+    [alignment '(right center)]
+    [stretchable-width #t]
+    [stretchable-height #t]))
+
+  (define b3(new vertical-pane%
+    [parent cont]
+    [vert-margin 10]
+    [horiz-margin 10]
+    [alignment '(right bottom)]
+    [stretchable-width #t]
+    [stretchable-height #t]))   
+
+  (define bouton1(new button% 
+    [parent b1]
+    [label "creer frame"]))
+
+  (define bouton2(new button% 
+    [parent b2]
+    [label "supr frame"]))
+
+  (define bouton3(new button% 
+    [parent b3]
+    [label "cherch frame"]))
+
+  (define actu(new button% 
+    [parent panel]
+    [label "actualiser"]
+    [vert-margin 10]
+    [horiz-margin 10]))
+  
+  ;;actualise le canvas exec sur but mais aussi dans les func
+
+  (send fenetre show #t))
+
+
 
 (fput 'homme 'vie 'defaut 'vivant)
 (fput 'homme 'ako 'valeur 'objet)
