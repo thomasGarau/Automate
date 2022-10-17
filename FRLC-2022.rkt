@@ -121,7 +121,7 @@
 
 (define (fremove+ frame slot facet valeur)
   (fremove frame slot facet valeur)
-  (cond ((equal? facet 'if-removed) (apply(eval (mycar (fget frame slot 'ifneeded))) '()))))
+  (cond ((equal? facet 'if-removed) (apply(eval (mycar (fget frame slot 'if-removed))) '()))))
 
 (define (mycar l)(cond ((null? l) '())
                        (#t (car l))))
