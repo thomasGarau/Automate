@@ -25,7 +25,9 @@
         (#t (getprop s p))))
 
 (define (fassoc-slot frame cle aliste)
+  ;test si la cle correspond au premier élément de aliste
   (cond ((assoc  cle (cdr aliste)))
+  ;place dans la frame la propriété frame avec une liste dans laquelle on place à l'index 1 la propriété
         (#t    (putprop frame 'frame (ajoute-slot cle aliste (getprop frame 'frame))) (myassoc cle (cdr (getprop frame 'frame)))
                )))
 
@@ -42,9 +44,9 @@
 
 (define (fassoc-value  frame slot facet  value cle aliste)
   ;test si la liste est null;
-  ;cdr retourne les élement de la liste ((qui est en faite une facet)) - le première element
+  ;cdr retourne les élement de la liste ((qui est en faite une facet)) - le premier element
   (cond ((null? aliste) '())
-        ;assoc retourne le première element de la liste correspondant à la clé 
+        ;assoc retourne le premier element de la liste correspondant à la clé 
         ((assoc  cle (cdr aliste)))
         ;si la liste (facet) est vide alors jaoute  
         (#t (putprop frame 'frame (ajoute-value  value facet  slot 
@@ -112,6 +114,10 @@
                            (fassoc-facet frame slot  facet facet
                                          (fassoc-slot frame slot
                                                       (fgetframe frame)))) valeur)  ))  
+
+(define (fput+ frame slot facet valeur)
+  ((fput frame slot facet valeur))
+  (cond ((equal? facet 'if-added) (apply(eval(mycar(fget frame slot 'if-added)))'())))
 
 (define (mycar l)(cond ((null? l) '())
                        (#t (car l))))
@@ -186,6 +192,7 @@
 
 (fput 'homme 'vie 'defaut 'vivant)
 (fput 'homme 'ako 'valeur 'objet)
+(fput+ 'homme 'age 'if-added 'calcul-taille)
 (fput 'homme 'travail 'ifneeded 'ask)
 (fput 'homme 'marié 'defaut 'non)
 (fput 'homme 'mere 'defaut 'inconnue)
