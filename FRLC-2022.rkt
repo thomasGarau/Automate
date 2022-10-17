@@ -31,6 +31,7 @@
 
   ;; puisque le slot est creer pour placer la facette fassoc-facette à besoin d'une valeur de retour contenant le nouveau slot 
   (cond ((assoc  cle (cdr aliste)))
+  ;place dans la frame la propriété frame avec une liste dans laquelle on place à l'index 1 la propriété
         (#t    (putprop frame 'frame (ajoute-slot cle aliste (getprop frame 'frame))) (myassoc cle (cdr (getprop frame 'frame)))
                )))
 
@@ -43,7 +44,7 @@
 
 (define (fassoc-value  frame slot facet  value cle aliste)
   ;test si la liste est null;
-  ;cdr retourne les élement de la liste ((qui est en faite une facet)) - le première element
+  ;cdr retourne les élement de la liste ((qui est en faite une facet)) - le premier element
   (cond ((null? aliste) '())
         ;assoc retourne le premier element de la liste correspondant à la clé 
         ((assoc  cle (cdr aliste)))
@@ -116,6 +117,14 @@
                                          (fassoc-slot frame slot
                                         ;recreer la frame avec le nouveau slot contenant la facette que l'on souhaiter ajouté 
                                                       (fgetframe frame)))) valeur)  ))  
+
+(define (fput+ frame slot facet valeur)
+  ((fput frame slot facet valeur))
+  (cond ((equal? facet 'if-added) (apply(eval(mycar(fget frame slot 'if-added))) '()))))
+
+(define (fremove+ frame slot facet valeur)
+  (fremove frame slot facet valeur)
+  (cond ((equal? facet 'if-removed) (apply(eval (mycar (fget frame slot 'if-removed))) '()))))
 
 (define (mycar l)(cond ((null? l) '())
                        (#t (car l))))
@@ -193,8 +202,51 @@
 (map car (mycdr (myassoc slot (mycdr (mygetprop frame 'frame))))))
 
 
+(define (fget-I frame slot)
+  (define liste (fgetclasses frame))
+  (cond((equal? 1 (length liste)) (fget  (car liste) slot 'valeur))
+       ((not(equal? '() (fget  (car liste) slot 'valeur)))(fget  (car liste) slot 'valeur))
+  (#t(fget-I (car (cdr liste)) slot))))
+    
+(define (fget-Ibis frame slot cle)
+  (define liste (fgetclasses frame))
+  (cond((equal? 1 (length liste)) (fget  (car liste) slot cle))
+       ((not(equal? '() (fget  (car liste) slot cle)))(fget  (car liste) slot cle))
+  (#t(fget-Ibis (car (cdr liste)) slot cle))))
+
+(define (fget-N frame slot)
+  (cond((not(equal? '() (fget-Ibis frame slot 'valeur))) (fget-Ibis frame slot 'valeur))
+       ((not(equal? '() (fget-Ibis frame slot 'defaut))) (fget-Ibis frame slot 'defaut))
+       ((not(equal? '() (fget-Ibis frame slot 'ifneeded))) (fget-Ibis frame slot 'ifneeded))))
+
+(define (fget-Z frame slot)
+  (define liste (fgetclasses frame))
+  (cond((equal? 1 (length liste)) (cond((not(equal? '() (fget  (car liste) slot 'valeur))) (fget  (car liste) slot 'valeur))
+                                       ((not(equal? '() (fget  (car liste) slot 'defaut))) (fget  (car liste) slot 'defaut))
+                                       ((not(equal? '() (fget  (car liste) slot 'ifneeded))) (fget  (car liste) slot 'ifneeded))))
+       ((cond((not(equal? '() (fget  (car liste) slot 'valeur))) (fget  (car liste) slot 'valeur))
+             ((not(equal? '() (fget  (car liste) slot 'defaut))) (fget  (car liste) slot 'defaut))
+             ((not(equal? '() (fget  (car liste) slot 'ifneeded))) (fget  (car liste) slot 'ifneeded))))
+  (#t(fget-Z (car (cdr liste)) slot))))
+
+(define (fgename frame)
+  (cond((getprop frame 'number))
+       (#t(putprop frame 'number 1))
+  )
+  (define char (symbol->string frame))
+  (define num (number->string (getprop frame 'number)))
+  (define res (string->symbol (string-append char "_" num)))
+  (putprop frame 'number (+ 1 (getprop frame 'number)))res)
+
+(define (fchildren frame slot)
+  (define liste (cadr (fgetclasses frame)))liste)
+
+(define (Frame frame)
+  (cond((member frame *frames*) (fgetframe frame)) (#t '())))
+
 (fput 'homme 'vie 'defaut 'vivant)
 (fput 'homme 'ako 'valeur 'objet)
+(fput+ 'homme 'age 'if-added 'calcul-taille)
 (fput 'homme 'travail 'ifneeded 'ask)
 (fput 'homme 'marié 'defaut 'non)
 (fput 'homme 'mere 'defaut 'inconnue)
@@ -204,3 +256,7 @@
 (fput 'femme 'marié 'defaut 'non)
 (fput 'femme 'enfant 'defaut 0)
 (fput 'femme 'mere 'defaut 'inconnue)
+(fput 'canari 'couleur 'valeur 'jaune)
+(fput 'pioupiou 'ako 'valeur 'canari)
+(fput 'canari 'ako 'valeur 'oiseau)
+
