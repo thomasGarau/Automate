@@ -170,6 +170,21 @@
               (#t (set! r 'T))))
               (myval frame e fac)))(myffacet frame e)))taille_slot)r)
 
+(define (is-in-list list value)
+ (cond
+  [(empty? list) false]
+  [(equal? (first list) value) true]
+  [else (is-in-list (rest list) value)]))
+
+(define (frames? frame)
+  (define liste *frames*)
+  (is-in-list liste frame))
+  
+(define (fname nom)
+  (define liste *frames*)
+  (cond ((not (equal? #t (is-in-list liste nom)))#f)
+          (#t (print nom))))
+  
 
 (define (fcreate frame name)
   ;il faudrait ajouté une verification que le frame existe pas déja avant de le créer ((liste des frames *frame*)); pour ca utilisé la fonctio nmember on peut aussi utilisé print (ca fait partie de scheme)
