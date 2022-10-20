@@ -185,6 +185,14 @@
   (cond ((not (equal? #t (is-in-list liste nom)))#f)
           (#t (print nom))))
   
+(define (finstance? frame)
+    (cond ((not(equal? (car(fget-I frame 'classification)) 'instance)) #f)
+        (#t)))
+  
+
+(define (fgeneric? frame)
+  (cond ((not(equal? (car(fget-I frame 'classification)) 'prototype)) #f)
+      (#t)))
 
 (define (fcreate frame name)
   ;il faudrait ajouté une verification que le frame existe pas déja avant de le créer ((liste des frames *frame*)); pour ca utilisé la fonctio nmember on peut aussi utilisé print (ca fait partie de scheme)
@@ -357,6 +365,7 @@
 
 
 (fput 'homme 'vie 'defaut 'vivant)
+(fput 'homme 'classification 'valeur 'prototype)
 (fput 'homme 'ako 'valeur 'objet)
 (fput 'homme 'age 'if-added 'calcul-taille)
 (fput 'homme 'travail 'ifneeded 'ask)
@@ -372,6 +381,7 @@
 (fput 'pioupiou 'ako 'valeur 'canari)
 (fput 'canari 'ako 'valeur 'oiseau)
 (fput 'henry 'ako 'valeur 'homme)
+(fput 'henry 'classification 'valeur 'instance)
 (fput+ 'henry 'age 'age '21)
 
 
