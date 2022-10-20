@@ -364,6 +364,11 @@
     (set! ret (string-append ret (symbol->string (car(ffacet frame e))) "->" (symbol->string (car (fget frame e (car(ffacet frame e))))) " \n "))
     )listslot) ret)
 
+(define (Fimprim frame)
+  (define out (open-output-file "sauvegarde.txt" #:exists 'truncate))
+  (println (Fwriteframe frame) out)
+  (close-output-port out))
+
 (fput 'homme 'vie 'defaut 'vivant)
 (fput 'homme 'ako 'valeur 'objet)
 (fput 'homme 'age 'if-added 'calcul-taille)
