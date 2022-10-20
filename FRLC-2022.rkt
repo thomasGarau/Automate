@@ -340,6 +340,14 @@
   (send fenetre show #t))
 
 
+(define (Fwriteframe frame)
+  (define ret "|" )
+  (set! ret (string-append ret (symbol->string (car(fgetframe frame))) ":" " \n "))
+  (define listslot (fslot frame))
+  (map(lambda(e)
+    (set! ret (string-append ret (symbol->string e) ":" " \n " ))
+    (set! ret (string-append ret (symbol->string (car(ffacet frame e))) "->" (symbol->string (car (fget frame e (car(ffacet frame e))))) " \n "))
+    )listslot) ret)
 
 (fput 'homme 'vie 'defaut 'vivant)
 (fput 'homme 'ako 'valeur 'objet)
