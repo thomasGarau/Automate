@@ -273,6 +273,7 @@
     [stretchable-width #t]
     [stretchable-height #t]))
 
+
   (define cont(new horizontal-pane%
     [parent fenetre]
     [vert-margin 10]
@@ -323,7 +324,15 @@
     [vert-margin 10]
     [horiz-margin 10]))
   
-  ;;actualise le canvas exec sur but mais aussi dans les func
+  (define (Refresh frame panel)
+    (define text(new text%))
+    (send panel set-editor text)
+    (send text auto-wrap #t)
+    (send text set-padding 10 10 10 10)
+    (define f (symbol->string (car(fgetframe frame))))
+    (define listslot (fslot frame))
+    (send text insert (make-object string-snip% f))
+    (send text insert (make-object string-snip% f)))
 
   (send fenetre show #t))
 
