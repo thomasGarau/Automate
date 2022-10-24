@@ -186,6 +186,29 @@
               (#t (set! r 'T))))
               (myval frame e fac)))(myffacet frame e)))taille_slot)r)
 
+(define (is-in-list list value)
+ (cond
+  [(empty? list) false]
+  [(equal? (first list) value) true]
+  [else (is-in-list (rest list) value)]))
+
+(define (frames? frame)
+  (define liste *frames*)
+  (is-in-list liste frame))
+  
+(define (fname nom)
+  (define liste *frames*)
+  (cond ((not (equal? #t (is-in-list liste nom)))#f)
+          (#t (print nom))))
+  
+(define (finstance? frame)
+    (cond ((not(equal? (car(fget-I frame 'classification)) 'instance)) #f)
+        (#t)))
+  
+
+(define (fgeneric? frame)
+  (cond ((not(equal? (car(fget-I frame 'classification)) 'prototype)) #f)
+      (#t)))
 
 (define (fcreate frame name)
   ;il faudrait ajouté une verification que le frame existe pas déja avant de le créer ((liste des frames *frame*)); pour ca utilisé la fonctio nmember on peut aussi utilisé print (ca fait partie de scheme)
@@ -288,10 +311,11 @@
                 (('finstance?) '1)
                 (('fgeneric?) (1))
                 (('fcheck) (1))
-               ))
-  (
+               )))
+  
 
 (fput 'homme 'vie 'defaut 'vivant)
+(fput 'homme 'classification 'valeur 'prototype)
 (fput 'homme 'ako 'valeur 'objet)
 (fput 'homme 'age 'if-added 'calcul-taille)
 (fput 'homme 'age 'if-removed 'del)
@@ -308,6 +332,7 @@
 (fput 'pioupiou 'ako 'valeur 'canari)
 (fput 'canari 'ako 'valeur 'oiseau)
 (fput 'henry 'ako 'valeur 'homme)
+(fput 'henry 'classification 'valeur 'instance)
 (fput+ 'henry 'age 'age '21)
 (fremove+ 'henry 'age 'age '21)
 (fako?  'cannari 'pioupiou)
