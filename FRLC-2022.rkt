@@ -137,6 +137,9 @@
         (#t #f)))
  
 
+(define (salut)
+  (display "salut"))
+
 (define (mycar l)(cond ((null? l) '())
                        (#t (car l))))
 
