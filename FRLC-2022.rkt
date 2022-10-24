@@ -122,13 +122,29 @@
 (define (fput+ frame slot facet valeur)
   (fput frame slot facet (apply(eval(mycar(fget (mycar(cdr(fgetclasses frame))) slot 'if-added))) (list valeur))))
 
+(define (fremove+ frame slot facet valeur)
+  (fremove frame slot facet (apply(eval(mycar(fget (mycar(cdr(fgetclasses frame))) slot 'if-removed))) (list valeur))))
+
+(define (del valeur)
+  ( + valeur '1))
+
 (define (calcul-taille valeur)
   ( + valeur '1))
 
 
-(define (fremove+ frame slot facet valeur)
-  (fremove frame slot facet valeur)
-  (cond ((equal? facet 'if-removed) (apply(eval (mycar (fget frame slot 'if-removed))) '()))))
+(define (fako? frame1 frame2 e)
+  (define a '())
+  (cond ((equal? 1 (length e)) #f)
+  ((null? e)(set! a (fgetclasses frame1)))
+   (#t (set! a e)))
+  (cond ((not(member (car a)) (fgetclasses frame2)) (fako? frame1 frame2 (cdr a)))
+    (#t e)))
+
+(define (fako? frame1 frame2)
+  (cond ((member frame1 (fgetclasses frame2)) #t)
+        ( (member frame2 (fgetclasses frame1)) #t)
+        (#t #f)))
+ 
 
 (define (mycar l)(cond ((null? l) '())
                        (#t (car l))))
@@ -249,92 +265,36 @@
   (cond((member frame *frames*) (fgetframe frame)) (#t '())))
 
 (define (fmenu)
-  (define fenetre(new frame%
-    [label "Menu"]
-    [width 500]
-    [height 700]
-    [style '(fullscreen-button)]
-    [alignment '(right top)]
-    ))
-
-  (define panel(new horizontal-pane%
-    [parent fenetre]
-    [vert-margin 10]
-    [horiz-margin 10]
-    [alignment '(left center)]
-    [stretchable-width #t]
-    [stretchable-height #t]))
-
-  (define listeFrame(new editor-canvas%
-    [parent panel]
-    [label "liste frame"]
-    [min-width 125]
-    [min-height 600]
-    [vert-margin 10]
-    [horiz-margin 10]
-    [style '(no-hscroll auto-vscroll)]
-    [stretchable-width #t]
-    [stretchable-height #t]))
-
-  (define cont(new horizontal-pane%
-    [parent fenetre]
-    [vert-margin 10]
-    [horiz-margin 10]
-    [alignment '(right center)]
-    [stretchable-width #t]
-    [stretchable-height #t]))
-
-  (define b1(new vertical-pane%
-    [parent cont]
-    [vert-margin 10]
-    [horiz-margin 10]
-    [alignment '(right top)]
-    [stretchable-width #t]
-    [stretchable-height #t])) 
-
-  (define b2(new vertical-pane%
-    [parent cont]
-    [vert-margin 10]
-    [horiz-margin 10]
-    [alignment '(right center)]
-    [stretchable-width #t]
-    [stretchable-height #t]))
-
-  (define b3(new vertical-pane%
-    [parent cont]
-    [vert-margin 10]
-    [horiz-margin 10]
-    [alignment '(right bottom)]
-    [stretchable-width #t]
-    [stretchable-height #t]))   
-
-  (define bouton1(new button% 
-    [parent b1]
-    [label "creer frame"]))
-
-  (define bouton2(new button% 
-    [parent b2]
-    [label "supr frame"]))
-
-  (define bouton3(new button% 
-    [parent b3]
-    [label "cherch frame"]))
-
-  (define actu(new button% 
-    [parent panel]
-    [label "actualiser"]
-    [vert-margin 10]
-    [horiz-margin 10]))
-  
-  ;;actualise le canvas exec sur but mais aussi dans les func
-
-  (send fenetre show #t))
-
-
+  (define dico (
+                (('fget) (3))
+                (('fget-I) (2))
+                (('fget-Z) (2))
+                (('fget-N) (2))
+                (('fput) (3))
+                (('fput+) (4))
+                (('fremove) (3))
+                (('fRemove+) (4))
+                (('fcreate) (2))
+                (('finst) (2))
+                (('fgetclasses) (1))
+                (('fgename) (1))
+                (('fchildren) (2))
+                (('Fframe) (1))
+                (('Fframe?) (2))
+                (('flink) (1))
+                (('fako?) (2))
+                (('fname) (0))
+                (('fname?) (2))
+                (('finstance?) '1)
+                (('fgeneric?) (1))
+                (('fcheck) (1))
+               ))
+  (
 
 (fput 'homme 'vie 'defaut 'vivant)
 (fput 'homme 'ako 'valeur 'objet)
 (fput 'homme 'age 'if-added 'calcul-taille)
+(fput 'homme 'age 'if-removed 'del)
 (fput 'homme 'travail 'ifneeded 'ask)
 (fput 'homme 'marié 'defaut 'non)
 (fput 'homme 'mere 'defaut 'inconnue)
@@ -349,5 +309,7 @@
 (fput 'canari 'ako 'valeur 'oiseau)
 (fput 'henry 'ako 'valeur 'homme)
 (fput+ 'henry 'age 'age '21)
+(fremove+ 'henry 'age 'age '21)
+(fako?  'cannari 'pioupiou)
 
 
