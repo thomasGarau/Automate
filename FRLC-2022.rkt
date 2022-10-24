@@ -131,15 +131,6 @@
 (define (calcul-taille valeur)
   ( + valeur '1))
 
-
-(define (fako? frame1 frame2 e)
-  (define a '())
-  (cond ((equal? 1 (length e)) #f)
-  ((null? e)(set! a (fgetclasses frame1)))
-   (#t (set! a e)))
-  (cond ((not(member (car a)) (fgetclasses frame2)) (fako? frame1 frame2 (cdr a)))
-    (#t e)))
-
 (define (fako? frame1 frame2)
   (cond ((member frame1 (fgetclasses frame2)) #t)
         ( (member frame2 (fgetclasses frame1)) #t)
@@ -192,7 +183,7 @@
   [(equal? (first list) value) true]
   [else (is-in-list (rest list) value)]))
 
-(define (frames? frame)
+(define (Fframes? frame)
   (define liste *frames*)
   (is-in-list liste frame))
   
@@ -284,7 +275,7 @@
 (define (fchildren frame slot)
   (define liste (cadr (fgetclasses frame)))liste)
 
-(define (Frame frame)
+(define (Fframe frame)
   (cond((member frame *frames*) (fgetframe frame)) (#t '())))
 
 (define (fmenu)
@@ -304,9 +295,9 @@
                 (('fchildren) (2))
                 (('Fframe) (1))
                 (('Fframe?) (2))
-                (('flink) (1))
+                (('flink) (2))
                 (('fako?) (2))
-                (('fname) (0))
+                (('fname) (1))
                 (('fname?) (2))
                 (('finstance?) '1)
                 (('fgeneric?) (1))
