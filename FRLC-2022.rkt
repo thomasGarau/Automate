@@ -123,6 +123,9 @@
   (fremove frame slot facet valeur)
   (cond ((equal? facet 'if-removed) (apply(eval (mycar (fget frame slot 'if-removed))) '()))))
 
+(define (salut)
+  (display "salut"))
+
 (define (mycar l)(cond ((null? l) '())
                        (#t (car l))))
 
@@ -235,7 +238,7 @@
 
 (fput 'homme 'vie 'defaut 'vivant)
 (fput 'homme 'ako 'valeur 'objet)
-(fput+ 'homme 'age 'if-added 'calcul-taille)
+(fput+ 'homme 'age 'if-added salut)
 (fput 'homme 'travail 'ifneeded 'ask)
 (fput 'homme 'marié 'defaut 'non)
 (fput 'homme 'mere 'defaut 'inconnue)
