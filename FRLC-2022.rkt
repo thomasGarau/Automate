@@ -1,5 +1,7 @@
-(require racket/gui/base)
+(require racket/string)
+
 (require (lib "trace.ss"))
+
 
 (require (lib "compat.ss"))
 
@@ -26,30 +28,25 @@
         (#t (getprop s p))))
 
 (define (fassoc-slot frame cle aliste)
-  ; putprop ajoute une valeur dans un prop((une sorte d'objet avec clé value)) 
-  ; pour cela appel ajoute-slot qui va grace à getprop récup le prop((la liste des slot du frame)) et le concatener avec le slot à ajouté 
-  ; putprop ajouteras donc la liste de tout les slots avec le nouveau slot
-
-  ;; puisque le slot est creer pour placer la facette fassoc-facette à besoin d'une valeur de retour contenant le nouveau slot 
   (cond ((assoc  cle (cdr aliste)))
-  ;place dans la frame la propriété frame avec une liste dans laquelle on place à l'index 1 la propriété
         (#t    (putprop frame 'frame (ajoute-slot cle aliste (getprop frame 'frame))) (myassoc cle (cdr (getprop frame 'frame)))
                )))
 
+
 (define (fassoc-facet frame slot facet cle aliste)
-    
+  
+  
+  
   (cond ((null? aliste) '())
         ((assoc  cle (cdr aliste)))
+        ;((
         (#t    (putprop frame 'frame (ajoute-facet  facet slot cle aliste (getprop frame 'frame))) (myassoc cle (cdr (myassoc slot (cdr (getprop frame 'frame)))))
                )))
 
 (define (fassoc-value  frame slot facet  value cle aliste)
-  ;test si la liste est null;
-  ;cdr retourne les élement de la liste ((qui est en faite une facet)) - le premier element
+  
   (cond ((null? aliste) '())
-        ;assoc retourne le premier element de la liste correspondant à la clé 
         ((assoc  cle (cdr aliste)))
-        ;si la liste (facet) est vide alors jaoute  
         (#t (putprop frame 'frame (ajoute-value  value facet  slot 
                                                  cle aliste (getprop frame 'frame)))
             ))) 
@@ -62,9 +59,7 @@
 
 
 (define (ajoute-slot cle aliste  l)
-                        ;si;
   (cond ((null? (cdr l)) (list (car l) (cons cle (cdr l))))
-  ;si non;
         (#t (cons (car l) (cons (cons cle (cdr aliste)) (cdr l))))))
 
 (define (removemy s l)
@@ -79,11 +74,7 @@
 
 (define (ajoute-value value facet  slot cle aliste  l)
   ;(cons (car l)(cons (cons slot (cons (cons facet (cons (list value) (cdr aliste))) (myassoc facet (cdr aliste)))) (remove (myassoc slot (cdr l)) (cdr l))))) 
-  ;cons creer une liste à partir de deux élements; 
-  ;append fusionne deux liste;
-  ;myassoc retourne le premier élement du cdr correspondant à la valeur passer en param
-  ;list slot permet de cast slot en une liste afin de pouvoir utilisé le append ((en gros ca permet de fussioner une liste avec un element seule))
-  (cons(car l) (cons(append(list slot)(cons (cons facet (cons (list value) (cdr aliste)))(myassoc facet (cdr aliste)))(liste-facets (car l)  facet slot l)  )(remove (myassoc slot (cdr l)) (cdr l)))))  
+  (cons (car l)(cons (append (list slot) (cons (cons facet (cons (list value) (cdr aliste))) (myassoc facet (cdr aliste))) (liste-facets (car l)  facet slot l)  ) (remove (myassoc slot (cdr l)) (cdr l)))))  
 
 (define (liste-facets frame facet slot l)
   
@@ -100,33 +91,15 @@
   (cond ((equal? #f (assoc cle aliste)) '())
         ((assoc cle  aliste))))
 
-;setter de slot;
-;frame slot facet valeur = param;
 (define (fput frame slot facet valeur)
-;vérifie d'abord que la valeur n'est pas égale à celle déja présente; 
-;#f = false en gros;
-;fget retourne car (donc le première élement en gros)
-;mycar retourne valeur de la facette du slot de la frame passer en param
-;#f marche comme un returne;
-
   (cond ((equal? valeur (mycar (fget frame slot facet))) #f)
-        ;#t => si non returne true + ... ;
         (#t  (fassoc-value frame slot facet valeur valeur
-                            ;creer une facet
                            (fassoc-facet frame slot  facet facet
-                                        ;on place la facet dans un slot que l'on creer
                                          (fassoc-slot frame slot
-                                        ;recreer la frame avec le nouveau slot contenant la facette que l'on souhaiter ajouté 
                                                       (fgetframe frame)))) valeur)  ))  
 
 (define (fput+ frame slot facet valeur)
   (fput frame slot facet (apply(eval(mycar(fget (mycar(cdr(fgetclasses frame))) slot 'if-added))) (list valeur))))
-
-(define (fremove+ frame slot facet valeur)
-  (fremove frame slot facet (apply(eval(mycar(fget (mycar(cdr(fgetclasses frame))) slot 'if-removed))) (list valeur))))
-
-(define (del valeur)
-  ( + valeur '1))
 
 (define (calcul-taille valeur)
   ( + valeur '1))
@@ -156,6 +129,9 @@
 
 (define (salut)
   (display "salut"))
+(define (fremove+ frame slot facet valeur)
+  (fremove frame slot facet valeur)
+  (cond ((equal? facet 'if-removed) (apply(eval (mycar (fget frame slot 'if-removed))) '()))))
 
 (define (mycar l)(cond ((null? l) '())
                        (#t (car l))))
@@ -197,11 +173,6 @@
               (#t (set! r 'T))))
               (myval frame e fac)))(myffacet frame e)))taille_slot)r)
 
-(define (is-in-list list value)
- (cond
-  [(empty? list) false]
-  [(equal? (first list) value) true]
-  [else (is-in-list (rest list) value)]))
 
 (define (frames? frame)
   (define liste *frames*)
@@ -212,34 +183,18 @@
   (cond ((not (equal? #t (is-in-list liste nom)))#f)
           (#t (print nom))))
   
-(define (finstance? frame)
-    (cond ((not(equal? (car(fget-I frame 'classification)) 'instance)) #f)
-        (#t)))
-  
-
-(define (fgeneric? frame)
-  (cond ((not(equal? (car(fget-I frame 'classification)) 'prototype)) #f)
-      (#t)))
 
 (define (fcreate frame name)
-  ;il faudrait ajouté une verification que le frame existe pas déja avant de le créer ((liste des frames *frame*)); pour ca utilisé la fonctio nmember on peut aussi utilisé print (ca fait partie de scheme)
   (fput name 'ako 'valeur frame)
   (fput name 'classification 'valeur 'instance))
 
 (define (finst frame name)
   (fcreate frame name) 
   (set! *frame name)
-  ;map lambda execute une meme action sur chaque element de la liste
-  ;e correspond à la frame ((cela est récupérer dans fgetclasses frame))
   (map(lambda(e)
-        ;applique l'action lambda(ce qui est définit juste apres) sur slot récup grace à fslot e
         (map (lambda (slot)
-        ; verifie pour chaque slot si ca valeur est n'est pas null
         (cond((not (null?(fget e slot 'valeur))))
-        ; si elle le slot n'a pas de valeur alors  verifie si ca valeur par defaut n'est pas null
              (#t (cond((not (null? (fget e slot 'defaut))))
-                      ; si il n'a ni valeur ni valeur par defaut alors lui attribut une valeur grace a ifneeded
-                      ; set attribut au slot slot(celui de l'itération) la clé de la facette ifneeded du slot
                       (#t (set! *slot slot)(apply(eval (mycar (fget e slot 'ifneeded))) '()))))))
                (fslot e)))
       (fgetclasses frame)))
@@ -262,17 +217,20 @@
 (map car (mycdr (myassoc slot (mycdr (mygetprop frame 'frame))))))
 
 
+
 (define (fget-I frame slot)
   (define liste (fgetclasses frame))
   (cond((equal? 1 (length liste)) (fget  (car liste) slot 'valeur))
        ((not(equal? '() (fget  (car liste) slot 'valeur)))(fget  (car liste) slot 'valeur))
   (#t(fget-I (car (cdr liste)) slot))))
     
+
 (define (fget-Ibis frame slot cle)
   (define liste (fgetclasses frame))
   (cond((equal? 1 (length liste)) (fget  (car liste) slot cle))
        ((not(equal? '() (fget  (car liste) slot cle)))(fget  (car liste) slot cle))
   (#t(fget-Ibis (car (cdr liste)) slot cle))))
+
 
 (define (fget-N frame slot)
   (cond((not(equal? '() (fget-Ibis frame slot 'valeur))) (fget-Ibis frame slot 'valeur))
@@ -289,6 +247,7 @@
              ((not(equal? '() (fget  (car liste) slot 'ifneeded))) (fget  (car liste) slot 'ifneeded))))
   (#t(fget-Z (car (cdr liste)) slot))))
 
+
 (define (fgename frame)
   (cond((getprop frame 'number))
        (#t(putprop frame 'number 1))
@@ -304,32 +263,111 @@
 (define (Frame frame)
   (cond((member frame *frames*) (fgetframe frame)) (#t '())))
 
-;(define (fmenu)
-;  (define dico (
-;                (('fget) (3))
-;               (('fget-I) (2))
-;                (('fget-Z) (2))
-;                (('fget-N) (2))
-;                (('fput) (3))
-;                (('fput+) (4))
-;               (('fremove) (3))
-;                (('fRemove+) (4))
-;                (('fcreate) (2))
-;                (('finst) (2))
-;                (('fgetclasses) (1))
-;                (('fgename) (1))
-;                (('fchildren) (2))
-;                (('Fframe) (1))
-;                (('Fframe?) (2))
-;                (('flink) (1))
-;                (('fako?) (2))
-;               (('fname) (0))
-;                (('fname?) (2))
-;               (('finstance?) '1)
-;                (('fgeneric?) (1))
-;                (('fcheck) (1))
-;               )))
+(define (fmenu)
+  (define fenetre(new frame%
+    [label "Menu"]
+    [width 500]
+    [height 700]
+    [style '(fullscreen-button)]
+    [alignment '(right top)]
+    ))
+
+  (define panel(new horizontal-pane%
+    [parent fenetre]
+    [vert-margin 10]
+    [horiz-margin 10]
+    [alignment '(left center)]
+    [stretchable-width #t]
+    [stretchable-height #t]))
+
+  (define listeFrame(new editor-canvas%
+    [parent panel]
+    [label "liste frame"]
+    [min-width 125]
+    [min-height 600]
+    [vert-margin 10]
+    [horiz-margin 10]
+    [style '(no-hscroll auto-vscroll)]
+    [stretchable-width #t]
+    [stretchable-height #t]))
+
+
+  (define cont(new horizontal-pane%
+    [parent fenetre]
+    [vert-margin 10]
+    [horiz-margin 10]
+    [alignment '(right center)]
+    [stretchable-width #t]
+    [stretchable-height #t]))
+
+  (define b1(new vertical-pane%
+    [parent cont]
+    [vert-margin 10]
+    [horiz-margin 10]
+    [alignment '(right top)]
+    [stretchable-width #t]
+    [stretchable-height #t])) 
+
+  (define b2(new vertical-pane%
+    [parent cont]
+    [vert-margin 10]
+    [horiz-margin 10]
+    [alignment '(right center)]
+    [stretchable-width #t]
+    [stretchable-height #t]))
+
+  (define b3(new vertical-pane%
+    [parent cont]
+    [vert-margin 10]
+    [horiz-margin 10]
+    [alignment '(right bottom)]
+    [stretchable-width #t]
+    [stretchable-height #t]))   
+
+  (define bouton1(new button% 
+    [parent b1]
+    [label "creer frame"]))
+
+  (define bouton2(new button% 
+    [parent b2]
+    [label "supr frame"]))
+
+  (define bouton3(new button% 
+    [parent b3]
+    [label "cherch frame"]))
+
+  (define actu(new button% 
+    [parent panel]
+    [label "actualiser"]
+    [vert-margin 10]
+    [horiz-margin 10]))
   
+  (define (Refresh frame panel)
+    (define text(new text%))
+    (send panel set-editor text)
+    (send text auto-wrap #t)
+    (send text set-padding 10 10 10 10)
+    (define f (symbol->string (car(fgetframe frame))))
+    (define listslot (fslot frame))
+    (send text insert (make-object string-snip% f))
+    (send text insert (make-object string-snip% f)))
+
+  (send fenetre show #t))
+
+
+(define (Fwriteframe frame)
+  (define ret "|" )
+  (set! ret (string-append ret (symbol->string (car(fgetframe frame))) ":" " \n "))
+  (define listslot (fslot frame))
+  (map(lambda(e)
+    (set! ret (string-append ret (symbol->string e) ":" " \n " ))
+    (set! ret (string-append ret (symbol->string (car(ffacet frame e))) "->" (symbol->string (car (fget frame e (car(ffacet frame e))))) " \n "))
+    )listslot) ret)
+
+(define (Fimprim frame)
+  (define out (open-output-file "sauvegarde.txt" #:exists 'truncate))
+  (println (Fwriteframe frame) out)
+  (close-output-port out))
 
 (fput 'homme 'vie 'defaut 'vivant)
 (fput 'homme 'classification 'valeur 'prototype)
