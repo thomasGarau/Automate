@@ -98,6 +98,17 @@
                                          (fassoc-slot frame slot
                                                       (fgetframe frame)))) valeur)  ))  
 
+(define (fput+ frame slot facet valeur)
+  (fput frame slot facet (apply(eval(mycar(fget (mycar(cdr(fgetclasses frame))) slot 'if-added))) (list valeur))))
+
+(define (calcul-taille valeur)
+  ( + valeur '1))
+
+
+(define (fremove+ frame slot facet valeur)
+  (fremove frame slot facet valeur)
+  (cond ((equal? facet 'if-removed) (apply(eval (mycar (fget frame slot 'if-removed))) '()))))
+
 (define (mycar l)(cond ((null? l) '())
                        (#t (car l))))
 
@@ -139,7 +150,15 @@
               (myval frame e fac)))(myffacet frame e)))taille_slot)r)
 
 
-
+(define (frames? frame)
+  (define liste *frames*)
+  (is-in-list liste frame))
+  
+(define (fname nom)
+  (define liste *frames*)
+  (cond ((not (equal? #t (is-in-list liste nom)))#f)
+          (#t (print nom))))
+  
 
 (define (fcreate frame name)
   (fput name 'ako 'valeur frame)
@@ -214,61 +233,117 @@
 (define (Frame frame)
   (cond((member frame *frames*) (fgetframe frame)) (#t '())))
 
+(define (fmenu)
+  (define fenetre(new frame%
+    [label "Menu"]
+    [width 500]
+    [height 700]
+    [style '(fullscreen-button)]
+    [alignment '(right top)]
+    ))
+
+  (define panel(new horizontal-pane%
+    [parent fenetre]
+    [vert-margin 10]
+    [horiz-margin 10]
+    [alignment '(left center)]
+    [stretchable-width #t]
+    [stretchable-height #t]))
+
+  (define listeFrame(new editor-canvas%
+    [parent panel]
+    [label "liste frame"]
+    [min-width 125]
+    [min-height 600]
+    [vert-margin 10]
+    [horiz-margin 10]
+    [style '(no-hscroll auto-vscroll)]
+    [stretchable-width #t]
+    [stretchable-height #t]))
+
+
+  (define cont(new horizontal-pane%
+    [parent fenetre]
+    [vert-margin 10]
+    [horiz-margin 10]
+    [alignment '(right center)]
+    [stretchable-width #t]
+    [stretchable-height #t]))
+
+  (define b1(new vertical-pane%
+    [parent cont]
+    [vert-margin 10]
+    [horiz-margin 10]
+    [alignment '(right top)]
+    [stretchable-width #t]
+    [stretchable-height #t])) 
+
+  (define b2(new vertical-pane%
+    [parent cont]
+    [vert-margin 10]
+    [horiz-margin 10]
+    [alignment '(right center)]
+    [stretchable-width #t]
+    [stretchable-height #t]))
+
+  (define b3(new vertical-pane%
+    [parent cont]
+    [vert-margin 10]
+    [horiz-margin 10]
+    [alignment '(right bottom)]
+    [stretchable-width #t]
+    [stretchable-height #t]))   
+
+  (define bouton1(new button% 
+    [parent b1]
+    [label "creer frame"]))
+
+  (define bouton2(new button% 
+    [parent b2]
+    [label "supr frame"]))
+
+  (define bouton3(new button% 
+    [parent b3]
+    [label "cherch frame"]))
+
+  (define actu(new button% 
+    [parent panel]
+    [label "actualiser"]
+    [vert-margin 10]
+    [horiz-margin 10]))
+  
+  (define (Refresh frame panel)
+    (define text(new text%))
+    (send panel set-editor text)
+    (send text auto-wrap #t)
+    (send text set-padding 10 10 10 10)
+    (define f (symbol->string (car(fgetframe frame))))
+    (define listslot (fslot frame))
+    (send text insert (make-object string-snip% f))
+    (send text insert (make-object string-snip% f)))
+
+  (send fenetre show #t))
 
 
 (define (Fwriteframe frame)
-  (define ret "" )
+  (define ret "|" )
   (set! ret (string-append ret (symbol->string (car(fgetframe frame))) ":" " \n "))
   (define listslot (fslot frame))
   (map(lambda(e)
     (set! ret (string-append ret (symbol->string e) ":" " \n " ))
-    (set! ret (string-append ret "   " (symbol->string (car(ffacet frame e))) "\n" "      "(cond ((number? (car (fget frame e (car(ffacet frame e))))) (number->string (car (fget frame e (car(ffacet frame e))))))
-                                                                                           ((symbol? (car (fget frame e (car(ffacet frame e))))) (symbol->string (car (fget frame e (car(ffacet frame e))))))
-                                                                                           ((string? (car (fget frame e (car(ffacet frame e))))) (car (fget frame e (car(ffacet frame e))))) )  " \n "))
+    (set! ret (string-append ret (symbol->string (car(ffacet frame e))) "->" (symbol->string (car (fget frame e (car(ffacet frame e))))) " \n "))
     )listslot) ret)
 
-
 (define (Fimprim frame)
-  (define out (open-output-file "sauvegarde.txt" #:exists 'append))
-  (println (Fwriteframe frame)out)
+  (define out (open-output-file "sauvegarde.txt" #:exists 'truncate))
+  (println (Fwriteframe frame) out)
   (close-output-port out))
 
-
-(define (Fsave)
-  (define out (open-output-file "sauvegarde.txt" #:exists 'truncate))
-  (define a *frames*)
-  (map(lambda(e)
-        (Fimprim e))a))
-
-(define (Fload)
-  (define file "sauvegarde.txt")
-  (define (f file)
-    (let ((line (read-line file 'any)))
-      (unless (eof-object? line)
-        (fputSharp line)
-        (f file))))
-  (call-with-input-file file f))
-
-(define (fputSharp var)
-  (define l (string-split var ":"))
-  (set! l (string-join l ""))
-  (set! l (string->list l))
-  (set! l (remove* '(#\space) l))
-  (set! l (list->string l))
-  (set! l (string-split l "\\n"))
-  (display l)
-  (define len (/ (- (length l) 2) 3))
-  (set! len (build-list len values))
-  (set! len (map (lambda (n) (* 3 n)) len))
-  (define nom (substring (car l) 1))
-  (map(lambda(e)
-        (fput (string->symbol nom) (string->symbol (list-ref l (+ e 1) )) (string->symbol (list-ref l (+ e 2))) (cond( (not(equal? #f (string->number (list-ref l (+ e 3))))) (string->number (list-ref l(+ e 3))))
-                                                                                                                (#t (string->symbol (list-ref l (+ e 3)))))
-  ))len))
-
 (fput 'homme 'vie 'defaut 'vivant)
+(fput 'homme 'classification 'valeur 'prototype)
 (fput 'homme 'ako 'valeur 'objet)
 (fput 'homme 'age 'if-added 'calcul-taille)
+(fput 'homme 'age 'if-removed 'del)
 (fput 'homme 'travail 'ifneeded 'ask)
 (fput 'homme 'marié 'defaut 'non)
 (fput 'homme 'mere 'defaut 'inconnue)
@@ -282,6 +357,9 @@
 (fput 'pioupiou 'ako 'valeur 'canari)
 (fput 'canari 'ako 'valeur 'oiseau)
 (fput 'henry 'ako 'valeur 'homme)
+(fput 'henry 'classification 'valeur 'instance)
 (fput+ 'henry 'age 'age '21)
+(fremove+ 'henry 'age 'age '21)
+(fako?  'cannari 'pioupiou)
 
 
