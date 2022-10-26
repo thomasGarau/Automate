@@ -146,8 +146,13 @@
         (#t #f)))
 
 (define (flink? frame1 frame2)
-  (cond ((equal? #t (fako? frame1 frame2)) #t)
-        (())  ))
+  (define liste (fslot frame1))
+  (map(lambda(slot)
+      (print slot)
+      (cond((equal? (fget frame1 slot 'valeur) (fget frame2 slot 'valeur)) #t)
+      (#t #f))) 
+    liste))
+        
 
 (define (salut)
   (display "salut"))
@@ -242,7 +247,13 @@
 (define (fgetclasses frame)
   (cond((null? frame) '())
        ((equal? frame 'objet) '(objet))
-      (#t (cons frame (fgetclasses(mycar(fget frame 'ako 'valeur)))))))  
+      (#t (cons frame (fgetclasses(mycar(fget frame 'ako 'valeur)))))))
+
+(define (fgetslotsvalue frame slot)
+  (define liste (fslot frame))
+  (cond((null? frame) '())
+       ((equal? frame 'objet) '(objet))
+       (#t (cons frame (fgetslotsvalue(mycar(fget frame slot 'valeur)) slot)))))  
 
 (define(fslot frame)
   (map car(mycdr (mygetprop frame 'frame))))
@@ -338,9 +349,16 @@
 (fput 'pioupiou 'ako 'valeur 'canari)
 (fput 'canari 'ako 'valeur 'oiseau)
 (fput 'henry 'ako 'valeur 'homme)
+(fput 'marc 'ako 'valeur 'homme)
+(fput 'marc 'classification 'valeur 'instance)
 (fput 'henry 'classification 'valeur 'instance)
+(fput 'marie 'ako 'valeur 'femme)
 (fput+ 'henry 'age 'age '21)
 (fremove+ 'henry 'age 'age '21)
 (fako?  'cannari 'pioupiou)
-
+(flink? 'canari 'pioupiou) ;#t
+(flink? 'henry 'marc) ;#t
+(flink? 'homme 'henry) ; #t
+(flink? 'oiseau 'pioupiou) ;#t
+(flink? 'marie 'henry) ;#f
 
