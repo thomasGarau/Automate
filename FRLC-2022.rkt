@@ -262,7 +262,6 @@
         (car e))dico))
 
 (define (fmenu)
-<<<<<<< HEAD
   (define dico '(
                 (fget 3)
                 (fget-I 2)
@@ -346,85 +345,6 @@
         (fput (string->symbol nom) (string->symbol (list-ref l (+ e 1) )) (string->symbol (list-ref l (+ e 2))) (cond( (not(equal? #f (string->number (list-ref l (+ e 3))))) (string->number (list-ref l(+ e 3))))
                                                                                                                 (#t (string->symbol (list-ref l (+ e 3)))))
   ))len))  
-=======
-  (define fenetre(new frame%
-    [label "Menu"]
-    [width 500]
-    [height 700]
-    [style '(fullscreen-button)]
-    [alignment '(right top)]
-    ))
-
-  (define panel(new horizontal-pane%
-    [parent fenetre]
-    [vert-margin 10]
-    [horiz-margin 10]
-    [alignment '(left center)]
-    [stretchable-width #t]
-    [stretchable-height #t]))
-
-  (define listeFrame(new editor-canvas%
-    [parent panel]
-    [label "liste frame"]
-    [min-width 125]
-    [min-height 600]
-    [vert-margin 10]
-    [horiz-margin 10]
-    [style '(no-hscroll auto-vscroll)]
-    [stretchable-width #t]
-    [stretchable-height #t]))
-
-
-  (define cont(new horizontal-pane%
-    [parent fenetre]
-    [vert-margin 10]
-    [horiz-margin 10]
-    [alignment '(right center)]
-    [stretchable-width #t]
-    [stretchable-height #t]))
-
-  (define b1(new vertical-pane%
-    [parent cont]
-    [vert-margin 10]
-    [horiz-margin 10]
-    [alignment '(right top)]
-    [stretchable-width #t]
-    [stretchable-height #t])) 
-
-  (define b2(new vertical-pane%
-    [parent cont]
-    [vert-margin 10]
-    [horiz-margin 10]
-    [alignment '(right center)]
-    [stretchable-width #t]
-    [stretchable-height #t]))
-
-  (define b3(new vertical-pane%
-    [parent cont]
-    [vert-margin 10]
-    [horiz-margin 10]
-    [alignment '(right bottom)]
-    [stretchable-width #t]
-    [stretchable-height #t]))   
-
-  (define bouton1(new button% 
-    [parent b1]
-    [label "creer frame"]))
-
-  (define bouton2(new button% 
-    [parent b2]
-    [label "supr frame"]))
-
-  (define bouton3(new button% 
-    [parent b3]
-    [label "cherch frame"]))
-
-  (define actu(new button% 
-    [parent panel]
-    [label "actualiser"]
-    [vert-margin 10]
-    [horiz-margin 10]))
->>>>>>> 2b080d0e5fc4ce4316ffaac6812e2cf695e8abec
   
   (define (Refresh frame panel)
     (define text(new text%))
