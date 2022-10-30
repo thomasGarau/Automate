@@ -118,7 +118,10 @@
   (cond ((member (mycar(fget frame1 slot 'valeur)) (fgetslotsvalue frame2 slot)) #t)
         ((member (mycar(fget frame2 slot 'valeur)) (fgetslotsvalue frame1 slot)) #t)
         (#t #f)))
-        
+
+(define (fcheck frame slot)
+    (cond ((null? (cdr(fgetslotsvalue frame slot))) #f)
+    (#t #t)))   
 
 (define (salut)
   (display "salut"))
@@ -274,6 +277,7 @@
                 (fcreate 2)
                 (finst 2)
                 (fgetclasses 1)
+                (fgetslotsvalue 2)
                 (fgename 1)
                 (fchildren 2)
                 (Fframe 1)
@@ -293,7 +297,7 @@
   (cond ((not(member input listeKey)) "saisie incorect"))
   (define nbArg (myassoc input dico))
   (
-  )
+  ))
 
 
 (define (Fwriteframe frame)
