@@ -261,39 +261,108 @@
   (map(lambda(e)
         (car e))dico))
 
+(define (ajouteValue frame slot facet)
+  (print "Veuillez saisir la valeur à ajouter")
+  (define value (string->symbol (read-line (current-input-port))))
+  (fput frame slot facet value)
+  (print "Souhaiter vous ajouté une nouvelle value?")
+  (define choix1 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix1 'y) (ajouteValue frame slot facet)))
+  (car (fgetframe frame)))
+
+(define (ajouteFacet frame slot)
+  (print "Veuillez saisir le nom de la facet à ajouter")
+  (define facet (string->symbol (read-line (current-input-port))))
+  (print "Veuillez saisir une valeur pour la facet")
+  (define value (string->symbol (read-line (current-input-port))))
+  (fput frame slot facet value)
+
+  (print "Shouaiter vous ajouter une autre valeur à la nouvelle facet?")
+  (define choix1 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix1 'y) (ajouteValue frame slot facet)))
+  
+  (print "Souhaiter vous ajouter une nouvelle facet ?")
+  (define choix2 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix2 'y) (ajouteFacet frame slot)))
+  
+  (car (fgetframe frame)))
+
+(define (ajouteSlot frame)
+  (print "Veuillez saisir le nom du slot à ajouter")
+  (define slot (string->symbol (read-line (current-input-port))))
+  (print "Veuillez saisir le nom de la facet à ajouter")
+  (define facet (string->symbol (read-line (current-input-port))))
+  (print "Veuillez saisir le nom de la value à ajouter")
+  (define value (string->symbol (read-line (current-input-port))))
+  (fput frame slot facet value)
+
+  (print "Shouaiter vous ajouter une autre valeur à la facet facet du nouveau slot?")
+  (define choix1 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix1 'y) (ajouteValue frame slot facet)))
+  
+  (print "Souhaiter vous ajouter une nouvelle facet au slot ?")
+  (define choix2 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix2 'y) (ajouteFacet frame slot)))
+
+  (print "Souhaiter vous ajouter un autre slot au au frame ?")
+  (define choix3 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix3 'y) (ajouteslot frame)))
+
+  (car (fgetframe frame)))
+
+(define (fputmenu)
+  (print "Saisissez le nom du frame")
+  (define framu (string->symbol (read-line (current-input-port))))
+  (print "Saisissez le nom du slot")
+  (define slotu (string->symbol (read-line (current-input-port))))
+  (print "Saisissez le nom de la facet")
+  (define facetu (string->symbol (read-line (current-input-port))))
+  (print "Saisisser la valeur de la facet")
+  (define value (string->symbol (read-line (current-input-port))))
+  ;créer la frame avec les entrée de l'utilisateur
+  (fput framu slotu facetu value)
+
+  ;propose à l'utilisateur d'ajouter à la facet du slot de la frame créer une nouvlle value
+  (print "Souhaiter vous ajouter une nouvelle value ?")
+  (define choix1 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix1 'y) (ajouteValue framu slotu facetu)))
+
+  ;propose à l'utilisateur d'ajouter une nouvelle facet au slot créer
+  (print "Souhaiter vous ajouter une nouvelle facet ?")
+  (define choix2 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix2 'y) (ajouteFacet framu slotu)))
+
+  ;propose à l'utilisateur d'ajouter un nouveau slot à la frame créer
+  (print "Souhaiter vous ajouter un nouveau slot ?")
+  (define choix3 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix3 'y) (ajouteSlot framu)))
+  
+  (car(fgetframe framu))
+       
+  )
+
+(define (fputinst)
+  (print "Saisisser le nom du frame")
+  (define framu (string->symbol (read-line (current-input-port))))
+  (print "Saisissez le nom de l'instance")
+  (define name (string->symbol (read-line (current-input-port))))
+  (finst framu name))
+
+
 (define (fmenu)
   (define dico '(
-                (fget 3)
-                (fget-I 2)
-                (fget-Z 2)
-                (fget-N 2)
                 (fput 3)
                 (fput+ 4)
-                (fremove 3)
-                (fRemove+ 4)
-                (fcreate 2)
                 (finst 2)
-                (fgetclasses 1)
-                (fgename 1)
-                (fchildren 2)
-                (Fframe 1)
-                (Fframe? 2)
-                (flink 2)
-                (fako? 2)
-                (fname 1)
-                (fname? 2)
-                (finstance? 1)
-                (fgeneric? 1)
-                (fcheck 2)
                ))
   (define listeKey (fkey dico))
-  (print "vous pouvez utiliser une fonction parmis :")
+  (print "Quelle fonction souhaiter vous utilisez parmis :")
   (print listeKey)
   (define input (string->symbol (read-line (current-input-port))))
-  (cond ((not(member input listeKey)) "saisie incorect"))
-  (define nbArg (myassoc input dico))
-  (
-  )
+  (cond ((not(member input listeKey)) "saisie incorect")
+  (#t (cond ((equal? 'fput input)(fgetframe (fputmenu)))
+            ((equal? 'finst input)(fputinst))
+            ))))
 
 
 (define (Fwriteframe frame)
@@ -355,8 +424,7 @@
     (define listslot (fslot frame))
     (send text insert (make-object string-snip% f))
     (send text insert (make-object string-snip% f)))
-
-  (send fenetre show #t))
+    ;(send fenetre show #t))
 
 
 (define (Fwriteframe frame)
@@ -398,10 +466,10 @@
 (fput+ 'henry 'age 'age '21)
 (fremove+ 'henry 'age 'age '21)
 (fako?  'cannari 'pioupiou)
-(fmenu)
 (flink? 'canari 'pioupiou 'couleur)
 (flink? 'henry 'marc 'classification)
 (flink? 'homme 'henry 'ako)
 (flink? 'oiseau 'pioupiou 'ako)
 (flink? 'marie 'henry 'ako)
+(fmenu)
 
