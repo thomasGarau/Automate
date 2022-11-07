@@ -352,43 +352,7 @@
   (finst framu name))
 
 
-(define (fmenu)
-  (define dico '(
-                (fput 3)
-                (fput+ 4)
-                (finst 2)
-<<<<<<< HEAD
-=======
-                (fgetclasses 1)
-                (fgetslotsvalue 2)
-                (fgename 1)
-                (fchildren 2)
-                (Fframe 1)
-                (Fframe? 2)
-                (flink 2)
-                (fako? 2)
-                (fname 1)
-                (fname? 2)
-                (finstance? 1)
-                (fgeneric? 1)
-                (fcheck 2)
->>>>>>> e7f4b13c5acb1881c623ef223446f43ee200b673
-               ))
-  (define listeKey (fkey dico))
-  (print "Quelle fonction souhaiter vous utilisez parmis :")
-  (print listeKey)
-  (define input (string->symbol (read-line (current-input-port))))
-<<<<<<< HEAD
-  (cond ((not(member input listeKey)) "saisie incorect")
-  (#t (cond ((equal? 'fput input)(fgetframe (fputmenu)))
-            ((equal? 'finst input)(fputinst))
-            ))))
-=======
-  (cond ((not(member input listeKey)) "saisie incorect"))
-  (define nbArg (myassoc input dico))
-  (
-  ))
->>>>>>> e7f4b13c5acb1881c623ef223446f43ee200b673
+
 
 
 (define (Fwriteframe frame)
