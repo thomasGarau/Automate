@@ -103,14 +103,6 @@
 (define (ask) '1)
 
 
-(define (fako? frame1 frame2 e)
-  (define a '())
-  (cond ((equal? 1 (length e)) #f)
-  ((null? e)(set! a (fgetclasses frame1)))
-   (#t (set! a e)))
-  (cond ((not(member (car a)) (fgetclasses frame2)) (fako? frame1 frame2 (cdr a)))
-    (#t e)))
-
 (define (fako? frame1 frame2)
   (cond ((member frame1 (fgetclasses frame2)) #t)
         ( (member frame2 (fgetclasses frame1)) #t)
@@ -358,6 +350,7 @@
   (cond ((equal? choix3 'y) (ajouteSlot framu))))
 
 
+<<<<<<< HEAD
 (define (fmenu)
   (define dico '(
                 (fput 3)
@@ -377,6 +370,9 @@
   (define choix1 (string->symbol (read-line (current-input-port))))
   (cond ((equal? choix1 'y) (Fsave)))
   )
+=======
+
+>>>>>>> f01377f9a592842dd88ffdc495f34cacd750ed76
 
 
 (define (Fwriteframe frame)
@@ -429,6 +425,7 @@
                                                                                                                 (#t (string->symbol (list-ref l (+ e 3)))))
   ))len))  
   
+<<<<<<< HEAD
   (define (Refresh frame panel)
     (define text(new text%))
     (send panel set-editor text)
@@ -455,6 +452,10 @@
   (println (Fwriteframe frame) out)
   (close-output-port out))
 
+=======
+
+
+>>>>>>> f01377f9a592842dd88ffdc495f34cacd750ed76
 (fput 'homme 'vie 'defaut 'vivant)
 (fput 'homme 'classification 'valeur 'prototype)
 (fput 'homme 'ako 'valeur 'objet)
