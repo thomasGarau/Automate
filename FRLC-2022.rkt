@@ -105,14 +105,6 @@
   ( + valeur '1))
 
 
-(define (fako? frame1 frame2 e)
-  (define a '())
-  (cond ((equal? 1 (length e)) #f)
-  ((null? e)(set! a (fgetclasses frame1)))
-   (#t (set! a e)))
-  (cond ((not(member (car a)) (fgetclasses frame2)) (fako? frame1 frame2 (cdr a)))
-    (#t e)))
-
 (define (fako? frame1 frame2)
   (cond ((member frame1 (fgetclasses frame2)) #t)
         ( (member frame2 (fgetclasses frame1)) #t)
