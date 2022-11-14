@@ -100,6 +100,8 @@
 (define (calcul-taille valeur)
   ( + valeur '1))
 
+(define (ask) '1)
+
 
 (define (fako? frame1 frame2 e)
   (define a '())
@@ -184,6 +186,7 @@
   (fput name 'ako 'valeur frame)
   (fput name 'classification 'valeur 'instance))
 
+;frame correspond à la classe name au nom de l'instance 
 (define (finst frame name)
   (fcreate frame name) 
   (set! *frame name)
@@ -191,7 +194,7 @@
         (map (lambda (slot)
         (cond((not (null?(fget e slot 'valeur))))
              (#t (cond((not (null? (fget e slot 'defaut))))
-                      (#t (set! *slot slot)(apply(eval (mycar (fget e slot 'ifneeded))) '()))))))
+                      (#t (cond( (not(null? (fget e slot 'ifneeded))) (set! *slot slot)(apply(eval (mycar (fget e slot 'ifneeded))) '()))))))))
                (fslot e)))
       (fgetclasses frame)))
 
@@ -349,46 +352,31 @@
   (define framu (string->symbol (read-line (current-input-port))))
   (print "Saisissez le nom de l'instance")
   (define name (string->symbol (read-line (current-input-port))))
-  (finst framu name))
+  (finst framu name)
+  (print "Souhaiter vous ajouter un slot à la nouvelle instance ?")
+  (define choix3 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix3 'y) (ajouteSlot framu))))
 
 
 (define (fmenu)
   (define dico '(
                 (fput 3)
-                (fput+ 4)
                 (finst 2)
-<<<<<<< HEAD
-=======
-                (fgetclasses 1)
-                (fgetslotsvalue 2)
-                (fgename 1)
-                (fchildren 2)
-                (Fframe 1)
-                (Fframe? 2)
-                (flink 2)
-                (fako? 2)
-                (fname 1)
-                (fname? 2)
-                (finstance? 1)
-                (fgeneric? 1)
-                (fcheck 2)
->>>>>>> e7f4b13c5acb1881c623ef223446f43ee200b673
                ))
   (define listeKey (fkey dico))
+  (print "Shouaiter vous charger le fichier sauvegarde ?")
+  (define inputLoad (string->symbol (read-line (current-input-port))))
+  (cond((equal? inputLoad 'y)(Fload)))  
   (print "Quelle fonction souhaiter vous utilisez parmis :")
   (print listeKey)
   (define input (string->symbol (read-line (current-input-port))))
-<<<<<<< HEAD
   (cond ((not(member input listeKey)) "saisie incorect")
   (#t (cond ((equal? 'fput input)(fgetframe (fputmenu)))
-            ((equal? 'finst input)(fputinst))
-            ))))
-=======
-  (cond ((not(member input listeKey)) "saisie incorect"))
-  (define nbArg (myassoc input dico))
-  (
-  ))
->>>>>>> e7f4b13c5acb1881c623ef223446f43ee200b673
+            ((equal? 'finst input)(fputinst)))))
+  (print "Shouaiter vous sauvegarder vos modification")
+  (define choix1 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix1 'y) (Fsave)))
+  )
 
 
 (define (Fwriteframe frame)
@@ -441,7 +429,6 @@
                                                                                                                 (#t (string->symbol (list-ref l (+ e 3)))))
   ))len))  
   
-<<<<<<< HEAD
   (define (Refresh frame panel)
     (define text(new text%))
     (send panel set-editor text)
@@ -467,9 +454,6 @@
   (define out (open-output-file "sauvegarde.txt" #:exists 'truncate))
   (println (Fwriteframe frame) out)
   (close-output-port out))
-=======
-  
->>>>>>> e7f4b13c5acb1881c623ef223446f43ee200b673
 
 (fput 'homme 'vie 'defaut 'vivant)
 (fput 'homme 'classification 'valeur 'prototype)
