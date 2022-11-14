@@ -1,10 +1,6 @@
 (require racket/string)
-
 (require (lib "trace.ss"))
-
-
 (require (lib "compat.ss"))
-
 (require (lib "list.ss"))
 (define *frames* '())
 (define *frame '())
@@ -114,7 +110,10 @@
   (cond ((member (mycar(fget frame1 slot 'valeur)) (fgetslotsvalue frame2 slot)) #t)
         ((member (mycar(fget frame2 slot 'valeur)) (fgetslotsvalue frame1 slot)) #t)
         (#t #f)))
-        
+
+(define (fcheck frame slot)
+    (cond ((null? (cdr(fgetslotsvalue frame slot))) #f)
+    (#t #t)))   
 
 (define (salut)
   (display "salut"))
@@ -252,111 +251,153 @@
 (define (Frame frame)
   (cond((member frame *frames*) (fgetframe frame)) (#t '())))
 
-(define (fmenu)
-  (define fenetre(new frame%
-    [label "Menu"]
-    [width 500]
-    [height 700]
-    [style '(fullscreen-button)]
-    [alignment '(right top)]
-    ))
+;retourne toute les key du dico sans les value
+(define (fkey dico)
+  (map(lambda(e)
+        (car e))dico))
 
-  (define panel(new horizontal-pane%
-    [parent fenetre]
-    [vert-margin 10]
-    [horiz-margin 10]
-    [alignment '(left center)]
-    [stretchable-width #t]
-    [stretchable-height #t]))
+(define (ajouteValue frame slot facet)
+  (print "Veuillez saisir la valeur à ajouter")
+  (define value (string->symbol (read-line (current-input-port))))
+  (fput frame slot facet value)
+  (print "Souhaiter vous ajouté une nouvelle value?")
+  (define choix1 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix1 'y) (ajouteValue frame slot facet)))
+  (car (fgetframe frame)))
 
-  (define listeFrame(new editor-canvas%
-    [parent panel]
-    [label "liste frame"]
-    [min-width 125]
-    [min-height 600]
-    [vert-margin 10]
-    [horiz-margin 10]
-    [style '(no-hscroll auto-vscroll)]
-    [stretchable-width #t]
-    [stretchable-height #t]))
+(define (ajouteFacet frame slot)
+  (print "Veuillez saisir le nom de la facet à ajouter")
+  (define facet (string->symbol (read-line (current-input-port))))
+  (print "Veuillez saisir une valeur pour la facet")
+  (define value (string->symbol (read-line (current-input-port))))
+  (fput frame slot facet value)
 
-
-  (define cont(new horizontal-pane%
-    [parent fenetre]
-    [vert-margin 10]
-    [horiz-margin 10]
-    [alignment '(right center)]
-    [stretchable-width #t]
-    [stretchable-height #t]))
-
-  (define b1(new vertical-pane%
-    [parent cont]
-    [vert-margin 10]
-    [horiz-margin 10]
-    [alignment '(right top)]
-    [stretchable-width #t]
-    [stretchable-height #t])) 
-
-  (define b2(new vertical-pane%
-    [parent cont]
-    [vert-margin 10]
-    [horiz-margin 10]
-    [alignment '(right center)]
-    [stretchable-width #t]
-    [stretchable-height #t]))
-
-  (define b3(new vertical-pane%
-    [parent cont]
-    [vert-margin 10]
-    [horiz-margin 10]
-    [alignment '(right bottom)]
-    [stretchable-width #t]
-    [stretchable-height #t]))   
-
-  (define bouton1(new button% 
-    [parent b1]
-    [label "creer frame"]))
-
-  (define bouton2(new button% 
-    [parent b2]
-    [label "supr frame"]))
-
-  (define bouton3(new button% 
-    [parent b3]
-    [label "cherch frame"]))
-
-  (define actu(new button% 
-    [parent panel]
-    [label "actualiser"]
-    [vert-margin 10]
-    [horiz-margin 10]))
+  (print "Shouaiter vous ajouter une autre valeur à la nouvelle facet?")
+  (define choix1 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix1 'y) (ajouteValue frame slot facet)))
   
-  (define (Refresh frame panel)
-    (define text(new text%))
-    (send panel set-editor text)
-    (send text auto-wrap #t)
-    (send text set-padding 10 10 10 10)
-    (define f (symbol->string (car(fgetframe frame))))
-    (define listslot (fslot frame))
-    (send text insert (make-object string-snip% f))
-    (send text insert (make-object string-snip% f)))
+  (print "Souhaiter vous ajouter une nouvelle facet ?")
+  (define choix2 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix2 'y) (ajouteFacet frame slot)))
+  
+  (car (fgetframe frame)))
 
-  (send fenetre show #t))
+(define (ajouteSlot frame)
+  (print "Veuillez saisir le nom du slot à ajouter")
+  (define slot (string->symbol (read-line (current-input-port))))
+  (print "Veuillez saisir le nom de la facet à ajouter")
+  (define facet (string->symbol (read-line (current-input-port))))
+  (print "Veuillez saisir le nom de la value à ajouter")
+  (define value (string->symbol (read-line (current-input-port))))
+  (fput frame slot facet value)
+
+  (print "Shouaiter vous ajouter une autre valeur à la facet facet du nouveau slot?")
+  (define choix1 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix1 'y) (ajouteValue frame slot facet)))
+  
+  (print "Souhaiter vous ajouter une nouvelle facet au slot ?")
+  (define choix2 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix2 'y) (ajouteFacet frame slot)))
+
+  (print "Souhaiter vous ajouter un autre slot au au frame ?")
+  (define choix3 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix3 'y) (ajouteslot frame)))
+
+  (car (fgetframe frame)))
+
+(define (fputmenu)
+  (print "Saisissez le nom du frame")
+  (define framu (string->symbol (read-line (current-input-port))))
+  (print "Saisissez le nom du slot")
+  (define slotu (string->symbol (read-line (current-input-port))))
+  (print "Saisissez le nom de la facet")
+  (define facetu (string->symbol (read-line (current-input-port))))
+  (print "Saisisser la valeur de la facet")
+  (define value (string->symbol (read-line (current-input-port))))
+  ;créer la frame avec les entrée de l'utilisateur
+  (fput framu slotu facetu value)
+
+  ;propose à l'utilisateur d'ajouter à la facet du slot de la frame créer une nouvlle value
+  (print "Souhaiter vous ajouter une nouvelle value ?")
+  (define choix1 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix1 'y) (ajouteValue framu slotu facetu)))
+
+  ;propose à l'utilisateur d'ajouter une nouvelle facet au slot créer
+  (print "Souhaiter vous ajouter une nouvelle facet ?")
+  (define choix2 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix2 'y) (ajouteFacet framu slotu)))
+
+  ;propose à l'utilisateur d'ajouter un nouveau slot à la frame créer
+  (print "Souhaiter vous ajouter un nouveau slot ?")
+  (define choix3 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix3 'y) (ajouteSlot framu)))
+  
+  (car(fgetframe framu))
+       
+  )
+
+(define (fputinst)
+  (print "Saisisser le nom du frame")
+  (define framu (string->symbol (read-line (current-input-port))))
+  (print "Saisissez le nom de l'instance")
+  (define name (string->symbol (read-line (current-input-port))))
+  (finst framu name))
+
+
+
 
 
 (define (Fwriteframe frame)
-  (define ret "|" )
+  (define ret "" )
   (set! ret (string-append ret (symbol->string (car(fgetframe frame))) ":" " \n "))
   (define listslot (fslot frame))
   (map(lambda(e)
     (set! ret (string-append ret (symbol->string e) ":" " \n " ))
-    (set! ret (string-append ret (symbol->string (car(ffacet frame e))) "->" (symbol->string (car (fget frame e (car(ffacet frame e))))) " \n "))
+    (set! ret (string-append ret "   " (symbol->string (car(ffacet frame e))) "\n" "      "(cond ((number? (car (fget frame e (car(ffacet frame e))))) (number->string (car (fget frame e (car(ffacet frame e))))))
+                                                                                           ((symbol? (car (fget frame e (car(ffacet frame e))))) (symbol->string (car (fget frame e (car(ffacet frame e))))))
+                                                                                           ((string? (car (fget frame e (car(ffacet frame e))))) (car (fget frame e (car(ffacet frame e))))) )  " \n "))
     )listslot) ret)
 
+
 (define (Fimprim frame)
-  (define out (open-output-file "sauvegarde.txt" #:exists 'truncate))
-  (println (Fwriteframe frame) out)
+  (define out (open-output-file "sauvegarde.txt" #:exists 'append))
+  (println (Fwriteframe frame)out)
   (close-output-port out))
+
+
+(define (Fsave)
+  (define out (open-output-file "sauvegarde.txt" #:exists 'truncate))
+  (define a *frames*)
+  (map(lambda(e)
+        (Fimprim e))a))
+
+(define (Fload)
+  (define file "sauvegarde.txt")
+  (define (f file)
+    (let ((line (read-line file 'any)))
+      (unless (eof-object? line)
+        (fputSharp line)
+        (f file))))
+  (call-with-input-file file f))
+
+(define (fputSharp var)
+  (define l (string-split var ":"))
+  (set! l (string-join l ""))
+  (set! l (string->list l))
+  (set! l (remove* '(#\space) l))
+  (set! l (list->string l))
+  (set! l (string-split l "\\n"))
+  (display l)
+  (define len (/ (- (length l) 2) 3))
+  (set! len (build-list len values))
+  (set! len (map (lambda (n) (* 3 n)) len))
+  (define nom (substring (car l) 1))
+  (map(lambda(e)
+        (fput (string->symbol nom) (string->symbol (list-ref l (+ e 1) )) (string->symbol (list-ref l (+ e 2))) (cond( (not(equal? #f (string->number (list-ref l (+ e 3))))) (string->number (list-ref l(+ e 3))))
+                                                                                                                (#t (string->symbol (list-ref l (+ e 3)))))
+  ))len))  
+  
+
 
 (fput 'homme 'vie 'defaut 'vivant)
 (fput 'homme 'classification 'valeur 'prototype)
@@ -388,4 +429,5 @@
 (flink? 'homme 'henry 'ako)
 (flink? 'oiseau 'pioupiou 'ako)
 (flink? 'marie 'henry 'ako)
+(fmenu)
 
