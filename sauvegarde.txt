@@ -1,5 +1,0 @@
-"homme: \n mere: \n    defaut\n      inconnue \n marié: \n    defaut\n      non \n travail: \n    ifneeded\n      ask \n age: \n    if-added\n      calcul-taille \n ako: \n    valeur\n      objet \n vie: \n    defaut\n      vivant \n "
-"femme: \n mere: \n    defaut\n      inconnue \n enfant: \n    defaut\n      0 \n marié: \n    defaut\n      non \n travail: \n    defaut\n      aucun \n vie: \n    defaut\n      vivant \n ako: \n    valeur\n      objet \n "
-"canari: \n ako: \n    valeur\n      oiseau \n couleur: \n    valeur\n      jaune \n "
-"pioupiou: \n ako: \n    valeur\n      canari \n "
-"homme: \n vie: \n    defaut\n      vivant \n ako: \n    valeur\n      objet \n age: \n    if-added\n      calcul-taille \n travail: \n    ifneeded\n      ask \n marié: \n    defaut\n      non \n mere: \n    defaut\n      inconnue \n "
