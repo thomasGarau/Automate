@@ -421,38 +421,13 @@
                                                                                                                 (#t (string->symbol (list-ref l (+ e 3)))))
   ))len))  
   
-  (define (Refresh frame panel)
-    (define text(new text%))
-    (send panel set-editor text)
-    (send text auto-wrap #t)
-    (send text set-padding 10 10 10 10)
-    (define f (symbol->string (car(fgetframe frame))))
-    (define listslot (fslot frame))
-    (send text insert (make-object string-snip% f))
-    (send text insert (make-object string-snip% f)))
-    ;(send fenetre show #t))
-
-
-(define (Fwriteframe frame)
-  (define ret "|" )
-  (set! ret (string-append ret (symbol->string (car(fgetframe frame))) ":" " \n "))
-  (define listslot (fslot frame))
-  (map(lambda(e)
-    (set! ret (string-append ret (symbol->string e) ":" " \n " ))
-    (set! ret (string-append ret (symbol->string (car(ffacet frame e))) "->" (symbol->string (car (fget frame e (car(ffacet frame e))))) " \n "))
-    )listslot) ret)
-
-(define (Fimprim frame)
-  (define out (open-output-file "sauvegarde.txt" #:exists 'truncate))
-  (println (Fwriteframe frame) out)
-  (close-output-port out))
-
 (define (ajouteTravail name job)
   (cond (((equal? (fgetclasses name) 'homme) (fput name 'travail 'valeur job)))))
 
 (define (travail name)
   (cond ((not(equal? (fgetclasses name) 'homme))
          (#t (print (fget name 'travail 'valeur))))))
+
 
 (fput 'homme 'vie 'defaut 'vivant)
 (fput 'homme 'classification 'valeur 'prototype)
