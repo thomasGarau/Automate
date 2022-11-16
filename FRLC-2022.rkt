@@ -350,7 +350,6 @@
   (cond ((equal? choix3 'y) (ajouteSlot framu))))
 
 
-<<<<<<< HEAD
 (define (fmenu)
   (define dico '(
                 (fput 3)
@@ -370,9 +369,6 @@
   (define choix1 (string->symbol (read-line (current-input-port))))
   (cond ((equal? choix1 'y) (Fsave)))
   )
-=======
-
->>>>>>> f01377f9a592842dd88ffdc495f34cacd750ed76
 
 
 (define (Fwriteframe frame)
@@ -425,7 +421,6 @@
                                                                                                                 (#t (string->symbol (list-ref l (+ e 3)))))
   ))len))  
   
-<<<<<<< HEAD
   (define (Refresh frame panel)
     (define text(new text%))
     (send panel set-editor text)
@@ -452,16 +447,20 @@
   (println (Fwriteframe frame) out)
   (close-output-port out))
 
-=======
+(define (ajouteTravail name job)
+  (cond (((equal? (fgetclasses name) 'homme) (fput name 'travail 'valeur job)))))
 
+(define (travail name)
+  (cond ((not(equal? (fgetclasses name) 'homme))
+         (#t (print (fget name 'travail 'valeur))))))
 
->>>>>>> f01377f9a592842dd88ffdc495f34cacd750ed76
 (fput 'homme 'vie 'defaut 'vivant)
 (fput 'homme 'classification 'valeur 'prototype)
 (fput 'homme 'ako 'valeur 'objet)
 (fput 'homme 'age 'if-added 'calcul-taille)
 (fput 'homme 'age 'if-removed 'del)
 (fput 'homme 'travail 'ifneeded 'ask)
+(fput 'homme 'travail 'default 'unemploye)
 (fput 'homme 'marié 'defaut 'non)
 (fput 'homme 'mere 'defaut 'inconnue)
 (fput 'femme 'ako 'valeur 'objet)
@@ -486,5 +485,6 @@
 (flink? 'homme 'henry 'ako)
 (flink? 'oiseau 'pioupiou 'ako)
 (flink? 'marie 'henry 'ako)
-(fmenu)
+(ajouteTravail 'henry 'ahouahou)
+(travail 'henry)
 
