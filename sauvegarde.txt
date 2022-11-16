@@ -1,5 +1,7 @@
-zaezaaze
-ds
-qd
-dqs
-dqsd
+"homme: \n mere: \n    defaut\n      inconnue \n marié: \n    defaut\n      non \n travail: \n    default\n      unemploye \n age: \n    if-removed\n      del \n ako: \n    valeur\n      objet \n classification: \n    valeur\n      prototype \n vie: \n    defaut\n      vivant \n "
+"femme: \n mere: \n    defaut\n      inconnue \n enfant: \n    defaut\n      0 \n marié: \n    defaut\n      non \n travail: \n    defaut\n      aucun \n vie: \n    defaut\n      vivant \n ako: \n    valeur\n      objet \n "
+"canari: \n ako: \n    valeur\n      oiseau \n couleur: \n    valeur\n      jaune \n "
+"pioupiou: \n ako: \n    valeur\n      canari \n "
+"henry: \n travail: \n    valeur\n      ahouahou \n ako: \n    valeur\n      homme \n classification: \n    valeur\n      instance \n age: \n    age\n      22 \n "
+"marc: \n classification: \n    valeur\n      instance \n ako: \n    valeur\n      homme \n "
+"marie: \n ako: \n    valeur\n      femme \n "

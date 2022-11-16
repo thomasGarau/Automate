@@ -169,9 +169,12 @@
   (is-in-list liste frame))
   
 (define (fname nom)
-  (define liste *frames*)
-  (cond ((not (equal? #t (is-in-list liste nom)))#f)
-          (#t (print nom))))
+  (cond ((member nom *frames*) nom)
+          (#t #f)))
+
+(define (fnames? nom)
+  (cond ((member nom *frames*)#t)
+        (#t ())))
   
 
 (define (fcreate frame name)
@@ -388,6 +391,13 @@
   (println (Fwriteframe frame)out)
   (close-output-port out))
 
+(define (finstance? frame)
+    (cond ((not(equal? (car(fget-I frame 'classification)) 'instance)) #f)
+        (#t)))
+  
+(define (fgeneric? frame)
+  (cond ((not(equal? (car(fget-I frame 'classification)) 'prototype)) #f)
+      (#t)))
 
 (define (Fsave)
   (define out (open-output-file "sauvegarde.txt" #:exists 'truncate))
@@ -422,11 +432,11 @@
   ))len))  
   
 (define (ajouteTravail name job)
-  (cond (((equal? (fgetclasses name) 'homme) (fput name 'travail 'valeur job)))))
+  (cond ((equal? (cadr(fgetclasses name)) 'homme) (fput name 'travail 'valeur job))))
 
 (define (travail name)
-  (cond ((not(equal? (fgetclasses name) 'homme))
-         (#t (print (fget name 'travail 'valeur))))))
+  (cond ((equal? (fname name) name)(equal? (cadr(fgetclasses name)) 'homme) (print(fget name 'travail 'valeur)))
+        ((equal? (fname name) name)(equal? (cadr(fgetclasses name)) 'femme) (equal? (car(fget name 'marié 'valeur)) 'oui) (naissance (fgename 'enfant) name))))
 
 
 (fput 'homme 'vie 'defaut 'vivant)
@@ -452,6 +462,7 @@
 (fput 'marc 'classification 'valeur 'instance)
 (fput 'henry 'classification 'valeur 'instance)
 (fput 'marie 'ako 'valeur 'femme)
+(fput 'marie 'marié 'valeur 'oui)
 (fput+ 'henry 'age 'age '21)
 (fremove+ 'henry 'age 'age '21)
 (fako?  'cannari 'pioupiou)
@@ -461,5 +472,4 @@
 (flink? 'oiseau 'pioupiou 'ako)
 (flink? 'marie 'henry 'ako)
 (ajouteTravail 'henry 'ahouahou)
-(travail 'henry)
 
