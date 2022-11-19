@@ -150,6 +150,7 @@
 (define (myval frame slot facet)
 (map car (mycdr (myassoc facet (mycdr (myassoc slot (mycdr b)))))))
 
+;efface le frame en question et le reecris sans la valeur demandée
 (define (fremove frame slot facet valeur)
     (define taille_slot (fslot frame))
     (define r #f)
@@ -241,7 +242,7 @@
              ((not(equal? '() (fget  (car liste) slot 'ifneeded))) (fget  (car liste) slot 'ifneeded))))
   (#t(fget-Z (car (cdr liste)) slot))))
 
-
+;genere un nom unique grace a un numero
 (define (fgename frame)
   (cond((getprop frame 'number))
        (#t(putprop frame 'number 1))
@@ -373,7 +374,7 @@
   (cond ((equal? choix1 'y) (Fsave)))
   )
 
-
+;fonction qui reecris un frame sous une forme plus lisible
 (define (Fwriteframe frame)
   (define ret "" )
   (set! ret (string-append ret (symbol->string (car(fgetframe frame))) ":" " \n "))
@@ -385,9 +386,9 @@
                                                                                            ((string? (car (fget frame e (car(ffacet frame e))))) (car (fget frame e (car(ffacet frame e))))) )  " \n "))
     )listslot) ret)
 
-
+;ecris un frame dans le txt
 (define (Fimprim frame)
-  (define out (open-output-file "sauvegarde.txt" #:exists 'append))
+  (define out (open-output-file "sauvegarde.txt" #:exists 'append));permet d'ecrire a la ligne suiv
   (println (Fwriteframe frame)out)
   (close-output-port out))
 
@@ -399,12 +400,14 @@
   (cond ((not(equal? (car(fget-I frame 'classification)) 'prototype)) #f)
       (#t)))
 
+;ecris tout les frames au moment de l'execution dans un txt
 (define (Fsave)
-  (define out (open-output-file "sauvegarde.txt" #:exists 'truncate))
+  (define out (open-output-file "sauvegarde.txt" #:exists 'truncate));suprime avant d'ecrire
   (define a *frames*)
   (map(lambda(e)
         (Fimprim e))a))
 
+;charge les info depuis sauvegarde.txt et les fput dans *frames*
 (define (Fload)
   (define file "sauvegarde.txt")
   (define (f file)
@@ -414,19 +417,20 @@
         (f file))))
   (call-with-input-file file f))
 
+;;la fonction enleve les element parasites du string var puis fput ce dernier
 (define (fputSharp var)
-  (define l (string-split var ":"))
-  (set! l (string-join l ""))
+  (define l (string-split var ":"));;on separe sur les :
+  (set! l (string-join l ""));on reforme le string
   (set! l (string->list l))
-  (set! l (remove* '(#\space) l))
+  (set! l (remove* '(#\space) l));on enleve les espaces
   (set! l (list->string l))
-  (set! l (string-split l "\\n"))
+  (set! l (string-split l "\\n"));et on resplit sur les saut de ligne
   (display l)
   (define len (/ (- (length l) 2) 3))
   (set! len (build-list len values))
   (set! len (map (lambda (n) (* 3 n)) len))
   (define nom (substring (car l) 1))
-  (map(lambda(e)
+  (map(lambda(e);ici on recast les differente variable du fput
         (fput (string->symbol nom) (string->symbol (list-ref l (+ e 1) )) (string->symbol (list-ref l (+ e 2))) (cond( (not(equal? #f (string->number (list-ref l (+ e 3))))) (string->number (list-ref l(+ e 3))))
                                                                                                                 (#t (string->symbol (list-ref l (+ e 3)))))
   ))len))  
