@@ -23,6 +23,12 @@
   (cond ((equal? #f (getprop s p)) '())
         (#t (getprop s p))))
 
+(define (is-in-list list value)
+ (cond
+  [(empty? list) false]
+  [(equal? (first list) value) true]
+  [else (is-in-list (rest list) value)]))
+
 (define (fassoc-slot frame cle aliste)
   (cond ((assoc  cle (cdr aliste)))
         (#t    (putprop frame 'frame (ajoute-slot cle aliste (getprop frame 'frame))) (myassoc cle (cdr (getprop frame 'frame)))
@@ -100,7 +106,6 @@
 (define (calcul-taille valeur)
   ( + valeur '1))
 
-
 (define (fako? frame1 frame2)
   (cond ((member frame1 (fgetclasses frame2)) #t)
         ( (member frame2 (fgetclasses frame1)) #t)
@@ -174,7 +179,9 @@
 
 (define (fcreate frame name)
   (fput name 'ako 'valeur frame)
-  (fput name 'classification 'valeur 'instance))
+  (fput name 'classification 'valeur 'instance)
+  (cond ((equal? 'femme (car(fget name 'ako 'valeur))) (fput name 'enfant 'valeur 0))))
+
 
 (define (finst frame name)
   (fcreate frame name) 
@@ -209,7 +216,7 @@
 (define (fget-I frame slot)
   (define liste (fgetclasses frame))
   (cond((equal? 1 (length liste)) (fget  (car liste) slot 'valeur))
-       ((not(equal? '() (fget  (car liste) slot 'valeur)))(fget  (car liste) slot 'valeur))
+       ((not(equal '() (fget  (car liste) slot 'valeur)))(fget  (car liste) slot 'valeur))
   (#t(fget-I (car (cdr liste)) slot))))
     
 
@@ -397,7 +404,21 @@
                                                                                                                 (#t (string->symbol (list-ref l (+ e 3)))))
   ))len))  
   
+(define (naissance name sexe mere)
+  (cond ((not(member name *frames*))
+        (cond((equal?(and (equal? 'femme (cadr(fgetclasses mere)))(equal? 'oui (car(fget mere 'marié 'valeur)))) #t)
+            (cond((< (car(fget mere 'enfant 'valeur)) 10) (cigogne name sexe mere))))))))
+        
 
+(define (cigogne name sexe mere)
+  (fcreate sexe name)
+  (fput name 'mère 'valeur mere)
+  (fput mere 'enfant 'valeur (+ (car (fget mere 'enfant 'valeur)) 1)) 
+  (fremove mere 'enfant 'valeur (car (fget mere 'enfant 'valeur))))
+
+(define (marriage namehusband namewife)
+  (fput namehusband 'marié 'valeur 'oui)
+  (fput namewife 'marié 'valeur 'oui))      
 
 (fput 'homme 'vie 'defaut 'vivant)
 (fput 'homme 'classification 'valeur 'prototype)
@@ -429,5 +450,5 @@
 (flink? 'homme 'henry 'ako)
 (flink? 'oiseau 'pioupiou 'ako)
 (flink? 'marie 'henry 'ako)
-(fmenu)
+;(fmenu)
 
