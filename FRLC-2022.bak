@@ -118,7 +118,10 @@
   (cond ((member (mycar(fget frame1 slot 'valeur)) (fgetslotsvalue frame2 slot)) #t)
         ((member (mycar(fget frame2 slot 'valeur)) (fgetslotsvalue frame1 slot)) #t)
         (#t #f)))
-        
+
+(define (fcheck frame slot)
+    (cond ((null? (cdr(fgetslotsvalue frame slot))) #f)
+    (#t #t)))   
 
 (define (salut)
   (display "salut"))
@@ -181,6 +184,7 @@
   (fput name 'ako 'valeur frame)
   (fput name 'classification 'valeur 'instance))
 
+;frame correspond à la classe name au nom de l'instance 
 (define (finst frame name)
   (fcreate frame name) 
   (set! *frame name)
@@ -346,7 +350,10 @@
   (define framu (string->symbol (read-line (current-input-port))))
   (print "Saisissez le nom de l'instance")
   (define name (string->symbol (read-line (current-input-port))))
-  (finst framu name))
+  (finst framu name)
+  (print "Souhaiter vous ajouter un slot à la nouvelle instance ?")
+  (define choix3 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix3 'y) (ajouteSlot framu))))
 
 
 (define (fmenu)
@@ -359,10 +366,10 @@
   (print "Quelle fonction souhaiter vous utilisez parmis :")
   (print listeKey)
   (define input (string->symbol (read-line (current-input-port))))
-  (cond ((not(member input listeKey)) "saisie incorect"))
+  (cond ((not(member input listeKey)) "saisie incorect")
   (#t (cond ((equal? 'fput input)(fgetframe (fputmenu)))
             ((equal? 'finst input)(fputinst))
-            )))
+            ))))
 
 
 (define (Fwriteframe frame)
