@@ -114,9 +114,10 @@
         ( (member frame2 (fgetclasses frame1)) #t)
         (#t #f)))
 
+;retourne #t
 (define (flink? frame1 frame2 slot)
-  (cond ((member (mycar(fget frame1 slot 'valeur)) (fgetslotsvalue frame2 slot)) #t)
-        ((member (mycar(fget frame2 slot 'valeur)) (fgetslotsvalue frame1 slot)) #t)
+  (cond ((member (mycar(fget frame1 slot 'valeur)) (fget-I frame2 slot)) #t)
+        ((member (mycar(fget frame2 slot 'valeur)) (fget-I frame1 slot)) #t)
         (#t #f)))
 
 (define (fcheck frame slot)
@@ -125,6 +126,7 @@
 
 (define (salut)
   (display "salut"))
+
 (define (fremove+ frame slot facet valeur)
   (fremove frame slot facet valeur)
   (cond ((equal? facet 'if-removed) (apply(eval (mycar (fget frame slot 'if-removed))) '()))))
@@ -170,20 +172,22 @@
               (#t (set! r 'T))))
               (myval frame e fac)))(myffacet frame e)))taille_slot)r)
 
-
+;retourne True si l’argument passé en paramètre est un frame et nil sinon
 (define (frames? frame)
   (define liste *frames*)
   (is-in-list liste frame))
-  
+
+;returne le nom du frame passé en paramètre et nil si il n’existe pas  
 (define (fname nom)
   (cond ((member nom *frames*) nom)
           (#t #f)))
 
+;retourne T si l’argument passé en paramètre a un nom et nil sinon
 (define (fnames? nom)
   (cond ((member nom *frames*)#t)
         (#t ())))
   
-
+;
 (define (fcreate frame name)
   (fput name 'ako 'valeur frame)
   (fput name 'classification 'valeur 'instance)
@@ -210,8 +214,9 @@
 (define (fgetslotsvalue frame slot)
   (define liste (fslot frame))
   (cond((null? frame) '())
-       ((equal? frame 'objet) '(objet))
-       (#t (cons frame (fgetslotsvalue(mycar(fget frame slot 'valeur)) slot)))))  
+       (#t (cond((member slot liste))
+        ((equal? frame 'objet) '(objet))
+        (#t (cons frame (fgetslotsvalue (mycar(fget frame slot 'valeur)) slot)))))))  
 
 (define(fslot frame)
   (map car(mycdr (mygetprop frame 'frame))))
@@ -224,7 +229,7 @@
 (define (fget-I frame slot)
   (define liste (fgetclasses frame))
   (cond((equal? 1 (length liste)) (fget  (car liste) slot 'valeur))
-       ((not(equal '() (fget  (car liste) slot 'valeur)))(fget  (car liste) slot 'valeur))
+       ((not(equal? '() (fget  (car liste) slot 'valeur)))(fget  (car liste) slot 'valeur))
   (#t(fget-I (car (cdr liste)) slot))))
     
 
@@ -263,6 +268,7 @@
 (define (fchildren frame slot)
   (define liste (cadr (fgetclasses frame)))liste)
 
+;retourne la struture du frame passé en paramètre et nil sinon
 (define (Frame frame)
   (cond((member frame *frames*) (fgetframe frame)) (#t '())))
 
@@ -400,13 +406,17 @@
   (println (Fwriteframe frame)out)
   (close-output-port out))
 
+;vérifie si une frame est une instance, retourne #t si vrai, #f si faux et nil si elle n'existe
 (define (finstance? frame)
-    (cond ((not(equal? (car(fget-I frame 'classification)) 'instance)) #f)
-        (#t)))
-  
+    (cond ((not(member frame *frames*)) '())
+          (#t (cond ((equal? (car(fget-I frame 'classification)) 'instance) #t)
+                (#t #f)))))
+
+;vérifie si une frame est un prototype, retourne #t si vrai, #f si faux et nil si elle n'existe 
 (define (fgeneric? frame)
-  (cond ((not(equal? (car(fget-I frame 'classification)) 'prototype)) #f)
-      (#t)))
+    (cond ((not(member frame *frames*)) '())
+          (#t (cond ((equal? (car(fget-I frame 'classification)) 'prototype) #t)
+                (#t #f)))))
 
 ;ecris tout les frames au moment de l'execution dans un txt
 (define (Fsave)
@@ -456,12 +466,14 @@
   (cond ((equal? (fname name) name)(equal? (cadr(fgetclasses name)) 'homme) (print(fget name 'travail 'valeur)))
         ((equal? (fname name) name)(equal? (cadr(fgetclasses name)) 'femme) (equal? (car(fget name 'marié 'valeur)) 'oui) (naissance (fgename 'enfant) name))))
 
+;crée une instance qui a un lien de parenté(fille) avec sa mère au sens courant. Ajoute aussi 1 au nombre d'enfant de la mère.
 (define (cigogne name sexe mere)
   (fcreate sexe name)
   (fput name 'mère 'valeur mere)
   (fput mere 'enfant 'valeur (+ (car (fget mere 'enfant 'valeur)) 1)) 
   (fremove mere 'enfant 'valeur (car (fget mere 'enfant 'valeur))))
 
+;
 (define (marriage namehusband namewife)
   (fput namehusband 'marié 'valeur 'oui)
   (fput namewife 'marié 'valeur 'oui))      
