@@ -266,6 +266,8 @@
   (define res (string->symbol (string-append char "_" num)))
   (putprop frame 'number (+ 1 (getprop frame 'number)))res)
 
+
+;retourne le premier parent du frame par rapport au slot
 (define (fchildren frame slot)
   (define liste (cadr (fgetclasses frame)))liste)
 
