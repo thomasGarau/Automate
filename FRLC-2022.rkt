@@ -108,20 +108,21 @@
 
 (define (ask) '1)
 
-
+;retourne #t si les frames sont les même prototypes
 (define (fako? frame1 frame2)
   (cond ((member frame1 (fgetclasses frame2)) #t)
         ( (member frame2 (fgetclasses frame1)) #t)
         (#t #f)))
 
-;retourne #t
+;retourne #t si les frames ont la même valeur dans le même slot
 (define (flink? frame1 frame2 slot)
   (cond ((member (mycar(fget frame1 slot 'valeur)) (fget-I frame2 slot)) #t)
         ((member (mycar(fget frame2 slot 'valeur)) (fget-I frame1 slot)) #t)
         (#t #f)))
 
+;retourne #t si la frame possède une valeur dans le slot passé.
 (define (fcheck frame slot)
-    (cond ((null? (cdr(fgetslotsvalue frame slot))) #f)
+    (cond ((null? (car(fget-I frame slot))) #f)
     (#t #t)))   
 
 (define (salut)
@@ -470,8 +471,9 @@
 (define (cigogne name sexe mere)
   (fcreate sexe name)
   (fput name 'mère 'valeur mere)
-  (fput mere 'enfant 'valeur (+ (car (fget mere 'enfant 'valeur)) 1)) 
-  (fremove mere 'enfant 'valeur (car (fget mere 'enfant 'valeur))))
+  (define temp (car(fget mere 'enfant 'valeur)))
+  (fremove mere 'enfant 'valeur (car (fget mere 'enfant 'valeur)))
+  (fput mere 'enfant 'valeur (+ temp 1)))
 
 ;
 (define (marriage namehusband namewife)
