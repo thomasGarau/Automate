@@ -137,9 +137,6 @@
     (cond ((null? (car(fget-I frame slot))) #f)
     (#t #t)))   
 
-(define (salut)
-  (display "salut"))
-
 (define (fremove+ frame slot facet valeur)
   (cond ((member 'if-removed (ffacet frame slot)) (apply(eval(mycar (fget frame slot 'if-removed))) (list frame))))
   (fremove frame slot facet valeur))
@@ -223,13 +220,6 @@
   (cond((null? frame) '())
        ((equal? frame 'objet) '(objet))
       (#t (cons frame (fgetclasses(mycar(fget frame 'ako 'valeur)))))))
-
-(define (fgetslotsvalue frame slot)
-  (define liste (fslot frame))
-  (cond((null? frame) '())
-       (#t (cond((member slot liste))
-        ((equal? frame 'objet) '(objet))
-        (#t (cons frame (fgetslotsvalue (mycar(fget frame slot 'valeur)) slot)))))))  
 
 (define(fslot frame)
   (map car(mycdr (mygetprop frame 'frame))))
@@ -374,7 +364,7 @@
   (car(fgetframe framu)))
 
 ;permet de créer une instance de manière guidé (utilisé de manière guidé)
-(define (fputinst)
+(define (fmenuInst)
   (print "Saisisser le nom du frame")
   (define framu (string->symbol (read-line (current-input-port))))
   (print "Saisissez le nom de l'instance")
@@ -401,7 +391,7 @@
   (define input (string->symbol (read-line (current-input-port))))
   (cond ((not(member input listeKey)) "saisie incorect")
   (#t (cond ((equal? 'fput input)(fgetframe (fputmenu)))
-            ((equal? 'finst input)(fputinst)))))
+            ((equal? 'finst input)(fmenuInst)))))
   (print "Shouaiter vous sauvegarder vos modification")
   (define choix1 (string->symbol (read-line (current-input-port))))
   (cond ((equal? choix1 'y) (Fsave)))
@@ -483,8 +473,16 @@
 
 ;vérifie que la frame existe si elle existe et qu'elle est un homme alors print sont travail si non vérifie que la frame existe que c'est une femme et qu'elle est marié si c'est le cas créer un enfant
 (define (travail name)
-  (cond ((equal?(and (equal? (fname name) name)(equal? (cadr(fgetclasses name)) 'homme))#t) (print(fget name 'travail 'valeur)))
-        ((equal? (and (equal? (fname name) name) (equal? (cadr(fgetclasses name)) 'femme) (equal? (car(fget name 'marié 'valeur)) 'oui))#t)(naissance (fgename 'enfant)'homme name))))
+  (cond ((equal?(and (equal? (fname name) name)(equal? (cadr(fgetclasses name)) 'homme) (>= (fget name 'age 'valeur) 12))#t) (print(fget name 'travail 'valeur)))
+        ((equal? (and (equal? (fname name) name) (equal? (cadr(fgetclasses name)) 'femme) (equal? (car(fget name 'marié 'valeur)) 'oui) (>= (fget name 'age 'valeur) 12))#t)(naissance (fgename 'enfant)'homme name))
+        ((equal? (and (equal? (fname name) name) (< (fget name 'age 'valeur) 12))#t)(anniversary name))
+        ))
+
+(define (anniversary name)
+  (define temp (car(fget name 'age 'valeur)))
+  (fremove name 'age 'valeur (car (fget name 'age 'valeur)))
+  (fput name 'age 'valeur (+ temp 1)))
+  
 
 ;crée une instance qui a un lien de parenté(fille) avec sa mère au sens courant. Ajoute aussi 1 au nombre d'enfant de la mère.
 (define (cigogne name sexe mere)
@@ -497,7 +495,8 @@
 ;
 (define (marriage namehusband namewife)
   (fput namehusband 'marié 'valeur 'oui)
-  (fput namewife 'marié 'valeur 'oui))      
+  (fput namewife 'marié 'valeur 'oui))
+
 
 (fput 'homme 'vie 'defaut 'vivant)
 (fput 'homme 'classification 'valeur 'prototype)
@@ -531,11 +530,37 @@
 (flink? 'henry 'marc 'classification)
 (flink? 'homme 'henry 'ako)
 (flink? 'oiseau 'pioupiou 'ako)
-(finst 'femme 'eve)
-(marriage 'henry 'eve)
 (flink? 'marie 'henry 'ako)
 (ajouteTravail 'henry 'ahouahou)
-(travail 'eve)
+
+
+(define (prouveTribal)
+  (finst 'adam 'homme)
+  (fput 'adam 'age 'if-removed 'del)
+  ;fput+ ajoute un a l'age qui est save 
+  (fput+ 'adam 'age 'valeur 21)
+  (finst 'femme 'eve)
+  (marriage 'adam 'eve)
+  (ajouteTravail 'adam 'chasseurCueilleur)
+  *frames*
+  (travail 'adam)
+  (travail 'eve)
+  (travail 'eve)
+  (travail 'eve)
+  ;le travail de eve à créer des frame enfant
+  *frames*
+  (fremove+ 'adam 'age 'valeur 22)
+  ;le demon del liée à fremove+ fait que si l'age est supprimé la valeur du slot vie de la frame et mise à faux
+  (Fwriteframe 'adam)
+  (fremove+ 'enfant_1 'age 'valeur '0)
+  ;le premier née de adam et eve meurt
+  (travail 'enfant_1)
+  ;lorsqu'on fait travailler un enfant celui-ci gagne 1ans
+  (Fwriteframe 'enfant_1))
+
+(prouveTribal)
+  
+  
 
 
 
