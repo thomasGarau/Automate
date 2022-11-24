@@ -113,8 +113,11 @@
 
 ;valeur correspond à la frame
 ;utilisé par fremove+ lorsque l'age de la frame est supprimé alors on considére la frame comme "morte"
-(define (del valeur )
+(define (del valeur)
+  (fremove valeur 'age 'valeur (car (fget valeur 'age 'valeur)))
+  (fremove valeur 'vie 'valeur (car (fget valeur 'vie 'valeur)))
   (fput valeur 'vie 'valeur 'mort))
+
 
 ;utilisé par ifneeded (retourne 1 si absence de valeur)
 (define (ask) '1)
@@ -202,7 +205,7 @@
   (fput name 'ako 'valeur frame)
   (fput name 'classification 'valeur 'instance)
   (fput name 'age 'valeur age)
-  (fput name 'vivant 'valeur 'oui)
+  (fput name 'vie 'valeur 'oui)
   (cond ((equal? 'femme (car(fget name 'ako 'valeur))) (fput name 'enfant 'valeur 0))))
 
 
@@ -475,9 +478,9 @@
 
 ;vérifie que la frame existe si elle existe et qu'elle est un homme alors print sont travail si non vérifie que la frame existe que c'est une femme et qu'elle est marié si c'est le cas créer un enfant
 (define (travail name)
-  (cond ((equal?(and (equal? (fname name) name)(equal? (cadr(fgetclasses name)) 'homme) (>= (fget name 'age 'valeur) 12))#t) (print(fget name 'travail 'valeur)))
-        ((equal? (and (equal? (fname name) name) (equal? (cadr(fgetclasses name)) 'femme) (equal? (car(fget name 'marié 'valeur)) 'oui) (>= (fget name 'age 'valeur) 12))#t)(naissance (fgename 'enfant)'homme name))
-        ((equal? (and (equal? (fname name) name) (< (fget name 'age 'valeur) 12))#t)(anniversary name))
+  (cond ((equal?(and (equal? (fname name) name)(equal? (cadr(fgetclasses name)) 'homme) (>= (car(fget name 'age 'valeur)) 12))#t) (print(fget name 'travail 'valeur)))
+        ((equal? (and (equal? (fname name) name) (equal? (cadr(fgetclasses name)) 'femme) (equal? (car(fget name 'marié 'valeur)) 'oui) (>= (car(fget name 'age 'valeur)) 12))#t)(naissance (fgename 'enfant)'homme name))
+        ((equal? (and (equal? (fname name) name) (< (car(fget name 'age 'valeur)) 12))#t)(anniversary name))
         ))
 
 (define (anniversary name)
@@ -508,6 +511,7 @@
 (fput 'homme 'travail 'ifneeded 'ask)
 (fput 'homme 'travail 'default 'unemploye)
 (fput 'homme 'marié 'defaut 'non)
+(finst 'homme 'henry 22)
 (fput 'homme 'mere 'defaut 'inconnue)
 (fput 'femme 'ako 'valeur 'objet)
 (fput 'femme 'vie 'defaut 'vivant)
@@ -518,7 +522,6 @@
 (fput 'canari 'couleur 'valeur 'jaune)
 (fput 'pioupiou 'ako 'valeur 'canari)
 (fput 'canari 'ako 'valeur 'oiseau)
-(fput 'henry 'ako 'valeur 'homme)
 (fput 'henry 'age 'if-removed 'del)
 (fput 'marc 'ako 'valeur 'homme)
 (fput 'marc 'classification 'valeur 'instance)
@@ -537,27 +540,34 @@
 
 
 (define (prouveTribal)
-  (finst 'adam 'homme)
+  (finst 'homme 'adam 42)
   (fput 'adam 'age 'if-removed 'del)
-  ;fput+ ajoute un a l'age qui est save 
-  (fput+ 'adam 'age 'valeur 21)
-  (finst 'femme 'eve)
+  (finst 'femme 'eve 16)
   (marriage 'adam 'eve)
   (ajouteTravail 'adam 'chasseurCueilleur)
   *frames*
+  ;le travail de eve créer des frame enfant
   (travail 'adam)
   (travail 'eve)
   (travail 'eve)
   (travail 'eve)
-  ;le travail de eve à créer des frame enfant
-  *frames*
-  (fremove+ 'adam 'age 'valeur 22)
-  ;le demon del liée à fremove+ fait que si l'age est supprimé la valeur du slot vie de la frame et mise à faux
-  (Fwriteframe 'adam)
-  (fremove+ 'enfant_1 'age 'valeur '0)
-  ;le premier née de adam et eve meurt
-  (travail 'enfant_1)
+  ;ajoute le demon if-removed à l'enfant1 pour qu'il puisse être tué ultérieurements
+  (fput 'enfant_1 'age 'if-removed 'del)
+  ;le demon del lié à fremove+ fait que si l'age est supprimé la valeur du slot vie de la frame et mise à faux
+  (fremove+ 'adam 'age 'valeur 42)
+  
   ;lorsqu'on fait travailler un enfant celui-ci gagne 1ans
+  (travail 'enfant_1)
+  ;le premier née de adam et eve meurt
+  (fremove+ 'enfant_1 'age 'valeur 0)
+  ;print les frames avec fwriteframe et *frames* pour prouver que tout est cohérent
+  (print "liste des frames")
+  *frames*
+  (print "frame eve")
+  (Fwriteframe 'eve)
+  (print "frame Adam")
+  (Fwriteframe 'adam)
+  (print "frame enfant_1")
   (Fwriteframe 'enfant_1))
 
 (prouveTribal)
