@@ -23,6 +23,12 @@
   (cond ((equal? #f (getprop s p)) '())
         (#t (getprop s p))))
 
+(define (is-in-list list value)
+ (cond
+  [(empty? list) false]
+  [(equal? (first list) value) true]
+  [else (is-in-list (rest list) value)]))
+
 (define (fassoc-slot frame cle aliste)
   (cond ((assoc  cle (cdr aliste)))
         (#t    (putprop frame 'frame (ajoute-slot cle aliste (getprop frame 'frame))) (myassoc cle (cdr (getprop frame 'frame)))
@@ -97,17 +103,16 @@
 (define (fput+ frame slot facet valeur)
   (fput frame slot facet (apply(eval(mycar(fget (mycar(cdr(fgetclasses frame))) slot 'if-added))) (list valeur))))
 
+
+;demons
 (define (calcul-taille valeur)
   ( + valeur '1))
 
+(define (del valeur)
+  (0))
 
-(define (fako? frame1 frame2 e)
-  (define a '())
-  (cond ((equal? 1 (length e)) #f)
-  ((null? e)(set! a (fgetclasses frame1)))
-   (#t (set! a e)))
-  (cond ((not(member (car a)) (fgetclasses frame2)) (fako? frame1 frame2 (cdr a)))
-    (#t e)))
+(define (ask) '1)
+;fin demons
 
 (define (fako? frame1 frame2)
   (cond ((member frame1 (fgetclasses frame2)) #t)
@@ -156,6 +161,7 @@
 (define (myval frame slot facet)
 (map car (mycdr (myassoc facet (mycdr (myassoc slot (mycdr b)))))))
 
+;efface le frame en question et le reecris sans la valeur demandée
 (define (fremove frame slot facet valeur)
     (define taille_slot (fslot frame))
     (define r #f)
@@ -175,14 +181,19 @@
   (is-in-list liste frame))
   
 (define (fname nom)
-  (define liste *frames*)
-  (cond ((not (equal? #t (is-in-list liste nom)))#f)
-          (#t (print nom))))
+  (cond ((member nom *frames*) nom)
+          (#t #f)))
+
+(define (fnames? nom)
+  (cond ((member nom *frames*)#t)
+        (#t ())))
   
 
 (define (fcreate frame name)
   (fput name 'ako 'valeur frame)
-  (fput name 'classification 'valeur 'instance))
+  (fput name 'classification 'valeur 'instance)
+  (cond ((equal? 'femme (car(fget name 'ako 'valeur))) (fput name 'enfant 'valeur 0))))
+
 
 ;frame correspond à la classe name au nom de l'instance 
 (define (finst frame name)
@@ -192,7 +203,7 @@
         (map (lambda (slot)
         (cond((not (null?(fget e slot 'valeur))))
              (#t (cond((not (null? (fget e slot 'defaut))))
-                      (#t (set! *slot slot)(apply(eval (mycar (fget e slot 'ifneeded))) '()))))))
+                      (#t (cond( (not(null? (fget e slot 'ifneeded))) (set! *slot slot)(apply(eval (mycar (fget e slot 'ifneeded))) '()))))))))
                (fslot e)))
       (fgetclasses frame)))
 
@@ -218,7 +229,7 @@
 (define (fget-I frame slot)
   (define liste (fgetclasses frame))
   (cond((equal? 1 (length liste)) (fget  (car liste) slot 'valeur))
-       ((not(equal? '() (fget  (car liste) slot 'valeur)))(fget  (car liste) slot 'valeur))
+       ((not(equal '() (fget  (car liste) slot 'valeur)))(fget  (car liste) slot 'valeur))
   (#t(fget-I (car (cdr liste)) slot))))
     
 
@@ -244,7 +255,7 @@
              ((not(equal? '() (fget  (car liste) slot 'ifneeded))) (fget  (car liste) slot 'ifneeded))))
   (#t(fget-Z (car (cdr liste)) slot))))
 
-
+;genere un nom unique grace a un numero
 (define (fgename frame)
   (cond((getprop frame 'number))
        (#t(putprop frame 'number 1))
@@ -359,19 +370,24 @@
 (define (fmenu)
   (define dico '(
                 (fput 3)
-                (fput+ 4)
                 (finst 2)
                ))
   (define listeKey (fkey dico))
+  (print "Shouaiter vous charger le fichier sauvegarde ?")
+  (define inputLoad (string->symbol (read-line (current-input-port))))
+  (cond((equal? inputLoad 'y)(Fload)))  
   (print "Quelle fonction souhaiter vous utilisez parmis :")
   (print listeKey)
   (define input (string->symbol (read-line (current-input-port))))
   (cond ((not(member input listeKey)) "saisie incorect")
   (#t (cond ((equal? 'fput input)(fgetframe (fputmenu)))
-            ((equal? 'finst input)(fputinst))
-            ))))
+            ((equal? 'finst input)(fputinst)))))
+  (print "Shouaiter vous sauvegarder vos modification")
+  (define choix1 (string->symbol (read-line (current-input-port))))
+  (cond ((equal? choix1 'y) (Fsave)))
+  )
 
-
+;fonction qui reecris un frame sous une forme plus lisible
 (define (Fwriteframe frame)
   (define ret "" )
   (set! ret (string-append ret (symbol->string (car(fgetframe frame))) ":" " \n "))
@@ -383,19 +399,28 @@
                                                                                            ((string? (car (fget frame e (car(ffacet frame e))))) (car (fget frame e (car(ffacet frame e))))) )  " \n "))
     )listslot) ret)
 
-
+;ecris un frame dans le txt
 (define (Fimprim frame)
-  (define out (open-output-file "sauvegarde.txt" #:exists 'append))
+  (define out (open-output-file "sauvegarde.txt" #:exists 'append));permet d'ecrire a la ligne suiv
   (println (Fwriteframe frame)out)
   (close-output-port out))
 
+(define (finstance? frame)
+    (cond ((not(equal? (car(fget-I frame 'classification)) 'instance)) #f)
+        (#t)))
+  
+(define (fgeneric? frame)
+  (cond ((not(equal? (car(fget-I frame 'classification)) 'prototype)) #f)
+      (#t)))
 
+;ecris tout les frames au moment de l'execution dans un txt
 (define (Fsave)
-  (define out (open-output-file "sauvegarde.txt" #:exists 'truncate))
+  (define out (open-output-file "sauvegarde.txt" #:exists 'truncate));suprime avant d'ecrire
   (define a *frames*)
   (map(lambda(e)
         (Fimprim e))a))
 
+;charge les info depuis sauvegarde.txt et les fput dans *frames*
 (define (Fload)
   (define file "sauvegarde.txt")
   (define (f file)
@@ -405,48 +430,46 @@
         (f file))))
   (call-with-input-file file f))
 
+;;la fonction enleve les element parasites du string var puis fput ce dernier
 (define (fputSharp var)
-  (define l (string-split var ":"))
-  (set! l (string-join l ""))
+  (define l (string-split var ":"));;on separe sur les :
+  (set! l (string-join l ""));on reforme le string
   (set! l (string->list l))
-  (set! l (remove* '(#\space) l))
+  (set! l (remove* '(#\space) l));on enleve les espaces
   (set! l (list->string l))
-  (set! l (string-split l "\\n"))
+  (set! l (string-split l "\\n"));et on resplit sur les saut de ligne
   (display l)
   (define len (/ (- (length l) 2) 3))
   (set! len (build-list len values))
   (set! len (map (lambda (n) (* 3 n)) len))
   (define nom (substring (car l) 1))
-  (map(lambda(e)
+  (map(lambda(e);ici on recast les differente variable du fput
         (fput (string->symbol nom) (string->symbol (list-ref l (+ e 1) )) (string->symbol (list-ref l (+ e 2))) (cond( (not(equal? #f (string->number (list-ref l (+ e 3))))) (string->number (list-ref l(+ e 3))))
                                                                                                                 (#t (string->symbol (list-ref l (+ e 3)))))
   ))len))  
   
-  (define (Refresh frame panel)
-    (define text(new text%))
-    (send panel set-editor text)
-    (send text auto-wrap #t)
-    (send text set-padding 10 10 10 10)
-    (define f (symbol->string (car(fgetframe frame))))
-    (define listslot (fslot frame))
-    (send text insert (make-object string-snip% f))
-    (send text insert (make-object string-snip% f)))
-    ;(send fenetre show #t))
+(define (naissance name sexe mere)
+  (cond ((not(member name *frames*))
+        (cond((equal?(and (equal? 'femme (cadr(fgetclasses mere)))(equal? 'oui (car(fget mere 'marié 'valeur)))) #t)
+            (cond((< (car(fget mere 'enfant 'valeur)) 10) (cigogne name sexe mere))))))))
 
+        
+(define (ajouteTravail name job)
+  (cond ((equal? (cadr(fgetclasses name)) 'homme) (fput name 'travail 'valeur job))))
 
-(define (Fwriteframe frame)
-  (define ret "|" )
-  (set! ret (string-append ret (symbol->string (car(fgetframe frame))) ":" " \n "))
-  (define listslot (fslot frame))
-  (map(lambda(e)
-    (set! ret (string-append ret (symbol->string e) ":" " \n " ))
-    (set! ret (string-append ret (symbol->string (car(ffacet frame e))) "->" (symbol->string (car (fget frame e (car(ffacet frame e))))) " \n "))
-    )listslot) ret)
+(define (travail name)
+  (cond ((equal? (fname name) name)(equal? (cadr(fgetclasses name)) 'homme) (print(fget name 'travail 'valeur)))
+        ((equal? (fname name) name)(equal? (cadr(fgetclasses name)) 'femme) (equal? (car(fget name 'marié 'valeur)) 'oui) (naissance (fgename 'enfant) name))))
 
-(define (Fimprim frame)
-  (define out (open-output-file "sauvegarde.txt" #:exists 'truncate))
-  (println (Fwriteframe frame) out)
-  (close-output-port out))
+(define (cigogne name sexe mere)
+  (fcreate sexe name)
+  (fput name 'mère 'valeur mere)
+  (fput mere 'enfant 'valeur (+ (car (fget mere 'enfant 'valeur)) 1)) 
+  (fremove mere 'enfant 'valeur (car (fget mere 'enfant 'valeur))))
+
+(define (marriage namehusband namewife)
+  (fput namehusband 'marié 'valeur 'oui)
+  (fput namewife 'marié 'valeur 'oui))      
 
 (fput 'homme 'vie 'defaut 'vivant)
 (fput 'homme 'classification 'valeur 'prototype)
@@ -454,6 +477,7 @@
 (fput 'homme 'age 'if-added 'calcul-taille)
 (fput 'homme 'age 'if-removed 'del)
 (fput 'homme 'travail 'ifneeded 'ask)
+(fput 'homme 'travail 'default 'unemploye)
 (fput 'homme 'marié 'defaut 'non)
 (fput 'homme 'mere 'defaut 'inconnue)
 (fput 'femme 'ako 'valeur 'objet)
@@ -470,13 +494,15 @@
 (fput 'marc 'classification 'valeur 'instance)
 (fput 'henry 'classification 'valeur 'instance)
 (fput 'marie 'ako 'valeur 'femme)
-(fput+ 'henry 'age 'age '21)
-(fremove+ 'henry 'age 'age '21)
+(fput 'marie 'marié 'valeur 'oui)
+(fput+ 'henry 'age 'valeur 21)
+(fremove+ 'henry 'age 'valeur 21)
 (fako?  'cannari 'pioupiou)
 (flink? 'canari 'pioupiou 'couleur)
 (flink? 'henry 'marc 'classification)
 (flink? 'homme 'henry 'ako)
 (flink? 'oiseau 'pioupiou 'ako)
 (flink? 'marie 'henry 'ako)
-(fmenu)
+;(fmenu)
+(ajouteTravail 'henry 'ahouahou)
 

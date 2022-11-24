@@ -100,15 +100,27 @@
                                          (fassoc-slot frame slot
                                                       (fgetframe frame)))) valeur)  ))  
 
+
+;on n'utilise pas *value car on transmet la valeur en paramètres au demon, ce dernier retourne ensuite la valeur modifié, cette valeur modifié seras celle qui seras ajouté 
 (define (fput+ frame slot facet valeur)
   (fput frame slot facet (apply(eval(mycar(fget (mycar(cdr(fgetclasses frame))) slot 'if-added))) (list valeur))))
 
+
+;demons
+;retourne la valeur + 1 (elle est utilisé par fput+ pour changé la valeur de l'age)
 (define (calcul-taille valeur)
   ( + valeur '1))
 
+;valeur correspond à la frame
+;utilisé par fremove+ lorsque l'age de la frame est supprimé alors on considére la frame comme "morte"
+(define (del valeur )
+  (fput valeur 'vie 'valeur 'mort))
+
+;utilisé par ifneeded (retourne 1 si absence de valeur)
 (define (ask) '1)
+;fin demons
 
-
+; retourne true si un lien de paranté entre les deux frame false si non 
 (define (fako? frame1 frame2)
   (cond ((member frame1 (fgetclasses frame2)) #t)
         ( (member frame2 (fgetclasses frame1)) #t)
@@ -125,9 +137,11 @@
 
 (define (salut)
   (display "salut"))
+
+;utilise pas *value car on appel le demon avec un paramètre frame,
 (define (fremove+ frame slot facet valeur)
-  (fremove frame slot facet valeur)
-  (cond ((equal? facet 'if-removed) (apply(eval (mycar (fget frame slot 'if-removed))) '()))))
+  (cond ((member 'if-removed (ffacet frame slot)) (apply(eval(mycar (fget frame slot 'if-removed))) (list frame))))
+  (fremove frame slot facet valeur))
 
 (define (mycar l)(cond ((null? l) '())
                        (#t (car l))))
@@ -163,7 +177,7 @@
     (set! b (fgetframe frame))
     (putprop frame 'frame (list frame))
     (map(lambda(e)
-      (map (lambda(fac)
+      (map (lambda(fac)fput
         (map(lambda(val)
             (cond((not(equal? valeur val))
               (fput frame e fac val)) 
@@ -271,6 +285,7 @@
   (map(lambda(e)
         (car e))dico))
 
+;permet d'ajouter une ou plusieurs value à la facet du slot de la frame de manière guidé (utilisé pour fmenu)
 (define (ajouteValue frame slot facet)
   (print "Veuillez saisir la valeur à ajouter")
   (define value (string->symbol (read-line (current-input-port))))
@@ -280,6 +295,7 @@
   (cond ((equal? choix1 'y) (ajouteValue frame slot facet)))
   (car (fgetframe frame)))
 
+;permet d'ajouter une ou plusieurs facet au slot de la frame de manière guidé (utilisé pour fmenu)
 (define (ajouteFacet frame slot)
   (print "Veuillez saisir le nom de la facet à ajouter")
   (define facet (string->symbol (read-line (current-input-port))))
@@ -297,6 +313,7 @@
   
   (car (fgetframe frame)))
 
+;permet d'ajouter un ou plusieurs slot à la frame de manière guidé (pour fmenu)
 (define (ajouteSlot frame)
   (print "Veuillez saisir le nom du slot à ajouter")
   (define slot (string->symbol (read-line (current-input-port))))
@@ -347,28 +364,29 @@
   (define choix3 (string->symbol (read-line (current-input-port))))
   (cond ((equal? choix3 'y) (ajouteSlot framu)))
   
-  (car(fgetframe framu))
-       
-  )
+  (car(fgetframe framu)))
 
+;permet de créer une instance de manière guidé (utilisé de manière guidé)
 (define (fputinst)
   (print "Saisisser le nom du frame")
   (define framu (string->symbol (read-line (current-input-port))))
   (print "Saisissez le nom de l'instance")
   (define name (string->symbol (read-line (current-input-port))))
   (finst framu name)
-  (print "Souhaiter vous ajouter un slot à la nouvelle instance ?")
+  (print "Souhaiter vous ajouter un slot à la nouvelle instance ? y pour oui")
   (define choix3 (string->symbol (read-line (current-input-port))))
   (cond ((equal? choix3 'y) (ajouteSlot framu))))
 
 
+;permet d'utilisé fput et finst de manière guidé pour l'utilisateur
 (define (fmenu)
+  ;définit la liste des fonction utilisable par l'utilisateur
   (define dico '(
                 (fput 3)
                 (finst 2)
                ))
   (define listeKey (fkey dico))
-  (print "Shouaiter vous charger le fichier sauvegarde ?")
+  (print "Shouaiter vous charger le fichier sauvegarde ? y pour oui")
   (define inputLoad (string->symbol (read-line (current-input-port))))
   (cond((equal? inputLoad 'y)(Fload)))  
   (print "Quelle fonction souhaiter vous utilisez parmis :")
@@ -392,7 +410,7 @@
     (set! ret (string-append ret "   " (symbol->string (car(ffacet frame e))) "\n" "      "(cond ((number? (car (fget frame e (car(ffacet frame e))))) (number->string (car (fget frame e (car(ffacet frame e))))))
                                                                                            ((symbol? (car (fget frame e (car(ffacet frame e))))) (symbol->string (car (fget frame e (car(ffacet frame e))))))
                                                                                            ((string? (car (fget frame e (car(ffacet frame e))))) (car (fget frame e (car(ffacet frame e))))) )  " \n "))
-    )listslot) ret)
+    )listslot) (display ret))
 
 ;ecris un frame dans le txt
 (define (Fimprim frame)
@@ -448,13 +466,14 @@
         (cond((equal?(and (equal? 'femme (cadr(fgetclasses mere)))(equal? 'oui (car(fget mere 'marié 'valeur)))) #t)
             (cond((< (car(fget mere 'enfant 'valeur)) 10) (cigogne name sexe mere))))))))
 
-        
+;permet d'ajouter un métier à une frame si elle est un homme        
 (define (ajouteTravail name job)
   (cond ((equal? (cadr(fgetclasses name)) 'homme) (fput name 'travail 'valeur job))))
 
+;vérifie que la frame existe si elle existe et qu'elle est un homme alors print sont travail si non vérifie que la frame existe que c'est une femme et qu'elle est marié si c'est le cas créer un enfant
 (define (travail name)
-  (cond ((equal? (fname name) name)(equal? (cadr(fgetclasses name)) 'homme) (print(fget name 'travail 'valeur)))
-        ((equal? (fname name) name)(equal? (cadr(fgetclasses name)) 'femme) (equal? (car(fget name 'marié 'valeur)) 'oui) (naissance (fgename 'enfant) name))))
+  (cond ((equal?(and (equal? (fname name) name)(equal? (cadr(fgetclasses name)) 'homme))#t) (print(fget name 'travail 'valeur)))
+        ((equal? (and (equal? (fname name) name) (equal? (cadr(fgetclasses name)) 'femme) (equal? (car(fget name 'marié 'valeur)) 'oui))#t)(naissance (fgename 'enfant)'homme name))))
 
 (define (cigogne name sexe mere)
   (fcreate sexe name)
@@ -470,7 +489,7 @@
 (fput 'homme 'classification 'valeur 'prototype)
 (fput 'homme 'ako 'valeur 'objet)
 (fput 'homme 'age 'if-added 'calcul-taille)
-(fput 'homme 'age 'if-removed 'del)
+(fput 'henry 'age 'if-removed 'del)
 (fput 'homme 'travail 'ifneeded 'ask)
 (fput 'homme 'travail 'default 'unemploye)
 (fput 'homme 'marié 'defaut 'non)
@@ -485,19 +504,24 @@
 (fput 'pioupiou 'ako 'valeur 'canari)
 (fput 'canari 'ako 'valeur 'oiseau)
 (fput 'henry 'ako 'valeur 'homme)
+(fput 'henry 'age 'if-removed 'del)
 (fput 'marc 'ako 'valeur 'homme)
 (fput 'marc 'classification 'valeur 'instance)
 (fput 'henry 'classification 'valeur 'instance)
 (fput 'marie 'ako 'valeur 'femme)
 (fput 'marie 'marié 'valeur 'oui)
 (fput+ 'henry 'age 'valeur 21)
-(fremove+ 'henry 'age 'valeur 21)
+(fremove+ 'henry 'age 'valeur 22)
 (fako?  'cannari 'pioupiou)
 (flink? 'canari 'pioupiou 'couleur)
 (flink? 'henry 'marc 'classification)
 (flink? 'homme 'henry 'ako)
 (flink? 'oiseau 'pioupiou 'ako)
+(finst 'femme 'eve)
+(marriage 'henry 'eve)
 (flink? 'marie 'henry 'ako)
-;(fmenu)
 (ajouteTravail 'henry 'ahouahou)
+(travail 'eve)
+
+
 
