@@ -201,15 +201,17 @@
         (#t ())))
   
 ;
-(define (fcreate frame name)
+(define (fcreate frame name age)
   (fput name 'ako 'valeur frame)
   (fput name 'classification 'valeur 'instance)
+  (fput name 'age 'valeur age)
+  (fput name 'vivant 'valeur 'oui)
   (cond ((equal? 'femme (car(fget name 'ako 'valeur))) (fput name 'enfant 'valeur 0))))
 
 
 ;frame correspond à la classe name au nom de l'instance 
-(define (finst frame name)
-  (fcreate frame name) 
+(define (finst frame name age)
+  (fcreate frame name age) 
   (set! *frame name)
   (map(lambda(e)
         (map (lambda (slot)
@@ -488,11 +490,11 @@
 
 ;crée une instance qui a un lien de parenté(fille) avec sa mère au sens courant. Ajoute aussi 1 au nombre d'enfant de la mère.
 (define (cigogne name sexe mere)
-  (fcreate sexe name)
+  (fcreate sexe name 0)
   (fput name 'mère 'valeur mere)
-  (define temp (car(fget mere 'enfant 'valeur)))
+  (define temp2 (car(fget mere 'enfant 'valeur)))
   (fremove mere 'enfant 'valeur (car (fget mere 'enfant 'valeur)))
-  (fput mere 'enfant 'valeur (+ temp 1)))
+  (fput mere 'enfant 'valeur (+ temp2 1)))
 
 ;
 (define (marriage namehusband namewife)
@@ -531,11 +533,11 @@
 (flink? 'henry 'marc 'classification)
 (flink? 'homme 'henry 'ako)
 (flink? 'oiseau 'pioupiou 'ako)
-(finst 'femme 'eve)
-(marriage 'henry 'eve)
+(finst 'femme 'ève 20)
+(marriage 'henry 'ève)
 (flink? 'marie 'henry 'ako)
 (ajouteTravail 'henry 'ahouahou)
-(travail 'eve)
+(travail 'ève)
 
 
 
